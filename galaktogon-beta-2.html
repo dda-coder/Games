@@ -77,7 +77,7 @@ joy?.addEventListener("touchend",()=>{keys.w=keys.a=keys.s=keys.d=false},{passiv
 let lookId=null,lastLX=0;touchLook?.addEventListener("touchstart",e=>{const q=e.changedTouches[0];lookId=q.identifier;lastLX=q.clientX},{passive:true});
 touchLook?.addEventListener("touchmove",e=>{const q=[...e.touches].find(x=>x.identifier===lookId);if(!q)return;camYaw+=(q.clientX-lastLX)*.006;lastLX=q.clientX},{passive:true});
 touchLook?.addEventListener("touchend",()=>lookId=null,{passive:true});touchE?.addEventListener("click",()=>interact());
-let p=0,t=setInterval(async()=>{p+=10;$("prog").style.width=p+"%";$("msg").textContent=["Initialisiere volumetrische Welt…","Erzeuge Megacity…","Lade Beleuchtung…","Synchronisiere Pilot…","Aktiviere 3D-Renderer…","Bereit."][Math.min(5,Math.floor(p/20))];if(p>=100){clearInterval(t);try{await Promise.race([cloudLoad(),new Promise(r=>setTimeout(()=>r(false),8000))])}catch(e){}$("boot").classList.add("hidden");$("game").classList.remove("hidden");stats();requestAnimationFrame(loop)}} ,120);
+let p=0,t=setInterval(()=>{p=Math.min(100,p+10);$("prog").style.width=p+"%";$("msg").textContent=["Initialisiere volumetrische Welt…","Erzeuge Megacity…","Lade Beleuchtung…","Synchronisiere Pilot…","Aktiviere 3D-Renderer…","Bereit."][Math.min(5,Math.floor(p/20))];if(p>=100){clearInterval(t);$("boot").classList.add("hidden");$("game").classList.remove("hidden");stats();requestAnimationFrame(loop);setTimeout(()=>{cloudLoad().then(()=>{stats();show("PILOTENSAVE SYNCHRONISIERT")}).catch(()=>{})},0)}} ,120);
 // Cinematic world metadata is defined below.
 // CINEMATIC WORLD DATABASE
 const WORLD_DATABASE=[
