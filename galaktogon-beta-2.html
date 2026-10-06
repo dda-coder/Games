@@ -15,14 +15,44 @@
 <section id="game" class="hidden"><aside class="side"><div class="brand">GALAKTOGON</div><div class="muted" id="pilot"></div><div class="nav">
 <button data-v="home">Kommando</button><button data-v="galaxy">Galaxie</button><button data-v="missions">Missionen</button><button data-v="ship">Schiff</button><button data-v="inventory">Inventar</button><button data-v="training">Ausbildung</button><button data-v="factions">Fraktionen</button><button data-v="codex">Codex</button>
 </div></aside><main class="main"><div class="top"><div><div class="muted">SEKTOR 07 // FRONTIER</div><h1 id="title">Kommandozentrum</h1></div><div class="stats"><span class="chip">LV <b id="lv">1</b></span><span class="chip">XP <b id="xp">0</b></span><span class="chip">GC <b id="gc">500</b></span><span class="chip">Ruf <b id="rep">0</b></span></div></div><div id="view"></div></main></section>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL="https://tkbopzdurmejcwawtswa.supabase.co",SUPABASE_KEY="sb_publishable_NaSGbCf_A8HrrPV6O9D0ig_0tiFPA6D";
-const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let cloudUser=null,cloudSaveChain=Promise.resolve();
-async function cloudLoad(){const {data:{user},error:authError}=await supabase.auth.getUser();if(authError||!user){location.replace("./index.html");return false}cloudUser=user;const {data,error}=await supabase.from("game_saves").select("save_data").eq("user_id",user.id).eq("game_id","galaktogon-beta-2").maybeSingle();if(error){logLocal("CLOUD // Laden fehlgeschlagen.");return false}if(data&&data.save_data){S={...S,...data.save_data};localStorage.setItem("GALA_BETA2",JSON.stringify(S));stats();return true}return false}
+const SUPABASE_URL="https://tkbopzdurmejcwawtswa.supabase.co",SUPABASE_KEY="sb_publishable_NaSGbCf_A8HrrPV6O9D0ig_0tiFPA6D",STORAGE_KEY="sb-tkbopzdurmejcwawtswa-auth-token";
+let cloudUser=null,cloudToken=null,cloudSaveChain=Promise.resolve();
+function getSession(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");if(s?.access_token){cloudToken=s.access_token;return s}}catch{}return null}
+async function cloudApi(path,options={}){
+  const h=new Headers(options.headers||{});
+  h.set("apikey",SUPABASE_KEY);h.set("Content-Type","application/json");
+  if(cloudToken)h.set("Authorization","Bearer "+cloudToken);
+  const r=await fetch(SUPABASE_URL+path,{...options,headers:h});
+  const txt=await r.text();let data=null;try{data=txt?JSON.parse(txt):null}catch{}
+  if(!r.ok)throw new Error(data?.message||data?.msg||data?.error_description||("HTTP "+r.status));
+  return data
+}
+async function cloudLoad(){
+  const s=getSession();if(!s)return false;
+  try{
+    const user=await cloudApi("/auth/v1/user");if(!user?.id)return false;
+    cloudUser=user;
+    const data=await cloudApi("/rest/v1/game_saves?select=save_data&user_id=eq."+encodeURIComponent(user.id)+"&game_id=eq.galaktogon-beta-2");
+    if(Array.isArray(data)&&data[0]?.save_data){S={...S,...data[0].save_data};localStorage.setItem("GALA_BETA2",JSON.stringify(S));stats();return true}
+  }catch(e){logLocal("CLOUD // Laden nicht verfügbar. Lokaler Spielstand wird verwendet.")}
+  return false
+}
 function logLocal(x){S.logs.unshift(new Date().toLocaleTimeString()+" // "+x);S.logs=S.logs.slice(0,40)}
-function cloudSave(){if(!cloudUser)return Promise.resolve();const snapshot=JSON.parse(JSON.stringify(S));cloudSaveChain=cloudSaveChain.then(async()=>{const {error}=await supabase.from("game_saves").upsert({user_id:cloudUser.id,game_id:"galaktogon-beta-2",save_data:snapshot,updated_at:new Date().toISOString()},{onConflict:"user_id,game_id"});if(error)logLocal("CLOUD // Speichern fehlgeschlagen.");}).catch(()=>{});return cloudSaveChain}
+function cloudSave(){
+  if(!cloudUser||!cloudToken)return Promise.resolve();
+  const snapshot=JSON.parse(JSON.stringify(S));
+  cloudSaveChain=cloudSaveChain.then(async()=>{
+    try{
+      await cloudApi("/rest/v1/game_saves",{
+        method:"POST",
+        headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},
+        body:JSON.stringify({user_id:cloudUser.id,game_id:"galaktogon-beta-2",save_data:snapshot,updated_at:new Date().toISOString()})
+      })
+    }catch(e){logLocal("CLOUD // Speichern fehlgeschlagen.")}
+  }).catch(()=>{});
+  return cloudSaveChain
+}
 const $=x=>document.getElementById(x);let S=JSON.parse(localStorage.getItem("GALA_BETA2")||"null")||{name:"Nova",race:"Terraner",level:1,xp:0,gc:500,rep:0,hull:100,energy:100,hyper:100,sector:7,planet:"Asterion",inv:["Standard-Blaster","Medkit","Hyperzelle"],missions:[],logs:[],faction:"Neutral",kills:0};
 function save(){localStorage.setItem("GALA_BETA2",JSON.stringify(S));stats();void cloudSave()}function log(x){logLocal(x);save()}
 function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}function addXP(n){S.xp+=n;while(S.xp>=S.level*100){S.xp-=S.level*100;S.level++;log("RANGAUFSTIEG // Level "+S.level)}save()}function stats(){$("lv").textContent=S.level;$("xp").textContent=S.xp;$("gc").textContent=S.gc;$("rep").textContent=S.rep;$("pilot").textContent=S.name+" // "+S.race}
@@ -41,6 +71,6 @@ function training(){$("view").innerHTML='<div class="grid"><div class="card"><h2
 function factions(){$("view").innerHTML=`<div class="grid"><div class="card wide"><h2>Fraktionen</h2><p>Deine Entscheidungen verändern deinen Ruf.</p><div class="row"><span>Frontier-Allianz</span><button onclick="join('Alliance')">Kontakt</button></div><div class="row"><span>Freie Piraten</span><button onclick="join('Pirates')">Kontakt</button></div><p>Aktuell: <b>${S.faction}</b></p></div></div>`}function join(f){if(S.faction==="Pirates"&&f!=="Pirates")return log("ENTSCHEIDUNG // Piratenpfad ist irreversibel.");S.faction=f;if(f==="Pirates"){S.rep-=10;log("ENTSCHEIDUNG // Piratenpfad gewählt. Irreversibel.")}else{S.rep+=5;log("DIPLOMATIE // Allianz gewinnt Vertrauen.")}save();nav("factions")}
 function codex(){$("view").innerHTML='<div class="grid"><div class="card"><h2>Codex</h2><p><span class="tag">Uldaner</span> Eine verschwundene Zivilisation. Ihre Archive reagieren auf unbekannte Signale.</p><p><span class="tag">Hyperdrive</span> FTL-Reisen verbrauchen Energie.</p><p><span class="tag">Frontier</span> Grenzraum voller Handel und Konflikte.</p></div><div class="card"><h2>Beta 2</h2><p>Spielbarer Prototyp. Fortschritt wird lokal und – bei Anmeldung – in der Cloud gespeichert.</p><button onclick="resetSave()">Spielstand zurücksetzen</button></div></div>'}
 function create(){if(localStorage.getItem("GALA_BETA2"))return;S.name=(prompt("Name des Piloten:","Nova")||"Nova").trim().slice(0,24)||"Nova";S.race=(prompt("Rasse: Terraner, Avari, Krynn, Myr, Solari, Veyra, Nox, Orin","Terraner")||"Terraner").trim().slice(0,24)||"Terraner";save();log("CHARAKTER ERSTELLT // "+S.name+" // "+S.race)}
-async function resetSave(){if(!confirm("Spielstand wirklich zurücksetzen?"))return;localStorage.removeItem("GALA_BETA2");if(cloudUser){await supabase.from("game_saves").delete().eq("user_id",cloudUser.id).eq("game_id","galaktogon-beta-2")}location.reload()}
-let p=0,t=setInterval(async()=>{p+=10;$("prog").style.width=p+"%";$("msg").textContent=["Initialisiere Sektorkern…","Synchronisiere Sternkarte…","Prüfe Schiffssysteme…","Lade Missionsnetz…","Uldaner-Archiv versiegelt.","Bereit."][Math.min(5,Math.floor(p/20))];if(p>=100){clearInterval(t);const hadCloud=await cloudLoad();$("boot").classList.add("hidden");$("game").classList.remove("hidden");if(!hadCloud)create();stats();if(!hadCloud)void cloudSave();nav("home")}},120);
+async function resetSave(){if(!confirm("Spielstand wirklich zurücksetzen?"))return;localStorage.removeItem("GALA_BETA2");if(cloudUser&&cloudToken){try{await cloudApi("/rest/v1/game_saves?user_id=eq."+encodeURIComponent(cloudUser.id)+"&game_id=eq.galaktogon-beta-2",{method:"DELETE"})}catch(e){}}location.reload()}
+let p=0,t=setInterval(async()=>{p+=10;$("prog").style.width=p+"%";$("msg").textContent=["Initialisiere Sektorkern…","Synchronisiere Sternkarte…","Prüfe Schiffssysteme…","Lade Missionsnetz…","Uldaner-Archiv versiegelt.","Bereit."][Math.min(5,Math.floor(p/20))];if(p>=100){clearInterval(t);let hadCloud=false;try{hadCloud=await Promise.race([cloudLoad(),new Promise(r=>setTimeout(()=>r(false),8000))])}catch(e){}$("boot").classList.add("hidden");$("game").classList.remove("hidden");if(!hadCloud)create();stats();if(!hadCloud)void cloudSave();nav("home")}},120);
 </script></body></html>
