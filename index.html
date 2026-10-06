@@ -1,82 +1,26 @@
 <!doctype html>
-<html lang="de">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>GALACTIC DEFENSE</title>
+<html lang="de"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GALAKTOGON // Games</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#050914;--panel:#0b1222;--line:#213452;--cyan:#39e7ff;--purple:#9d63ff;--green:#62ffad;--red:#ff526d;--gold:#ffd45a}
-*{box-sizing:border-box}html,body{margin:0;height:100%;background:radial-gradient(circle at 70% 15%,#12254a 0,#070c18 42%,#03050c 100%);color:#eaf7ff;font:14px Arial,sans-serif;overflow:hidden}
-#app{height:100%;display:flex;flex-direction:column}.top{height:64px;display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#07101eeb;border-bottom:1px solid var(--line);z-index:3}.brand{font-weight:900;letter-spacing:3px;color:var(--cyan);text-shadow:0 0 14px #39e7ff77}.sub{font-size:10px;color:#7187a8;letter-spacing:2px}.stats{display:flex;gap:10px}.stat{min-width:88px;padding:7px 10px;border:1px solid var(--line);background:#0b1628;border-radius:9px}.stat b{display:block;font-size:16px}.stat span{font-size:10px;color:#7d91ad}.game{position:relative;flex:1;min-height:0}.game canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
-.bottom{min-height:132px;background:#07101eeF;border-top:1px solid var(--line);padding:8px;display:flex;gap:8px;z-index:3}.controls{width:190px;border:1px solid var(--line);border-radius:10px;padding:10px;background:#0b1425}.controls b{color:var(--cyan)}button{border:1px solid #29415f;background:#101e34;color:#eaf7ff;border-radius:8px;padding:9px;cursor:pointer;font-weight:700}button:hover{border-color:var(--cyan);box-shadow:0 0 12px #39e7ff22}.cards{display:flex;gap:8px;flex:1;overflow:auto}.card{min-width:190px;border:1px solid #31517a;border-radius:10px;padding:10px;background:linear-gradient(145deg,#111f36,#09111e);position:relative}.card h3{margin:0 0 5px;color:#fff}.card p{margin:0 0 8px;color:#91a7c4;font-size:12px;line-height:1.3}.cost{color:var(--gold);font-weight:900}.rarity{font-size:10px;color:var(--cyan)}.selected{border-color:var(--cyan);box-shadow:0 0 18px #39e7ff33}.help{position:absolute;right:12px;top:12px;background:#081322dd;border:1px solid var(--line);padding:9px;border-radius:9px;z-index:2;max-width:260px;color:#9cb0ca;font-size:11px}.modal{position:absolute;inset:0;display:none;place-items:center;background:#02050bd9;z-index:10}.modal.on{display:grid}.box{width:min(460px,90vw);background:#0b1424;border:1px solid var(--cyan);border-radius:14px;padding:22px;box-shadow:0 0 40px #39e7ff22}.box h1{margin-top:0;color:var(--cyan)}.bar{height:8px;background:#18243a;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));width:100%}@media(max-width:760px){.top{height:58px}.stat{min-width:65px;padding:5px}.stat b{font-size:13px}.sub{display:none}.help{display:none}.bottom{min-height:118px}.controls{width:135px}.card{min-width:155px}}
-</style>
-</head>
-<body>
-<div id="app">
-<header class="top">
- <div><div class="brand">GALACTIC DEFENSE</div><div class="sub">NEON FRONTIER // SEKTOR 01</div></div>
- <div class="stats">
-  <div class="stat"><span>BASIS</span><b id="hp">100</b></div>
-  <div class="stat"><span>ENERGIE</span><b id="money">320</b></div>
-  <div class="stat"><span>WELLE</span><b id="wave">0/20</b></div>
- </div>
-</header>
-<main class="game">
- <canvas id="c"></canvas>
- <div class="help">Klicke auf freie Plattformen, um einen Turm zu bauen. Nach jeder Welle erscheinen 3 zufällige Karten.</div>
- <div id="modal" class="modal"><div class="box"><h1>BASE VERLOREN</h1><p id="result"></p><button onclick="location.reload()">SYSTEM NEUSTART</button></div></div>
-</main>
-<footer class="bottom">
- <div class="controls"><b id="status">BEREIT</b><p id="timer">Nächste Runde: 8</p><button id="start">WELLE STARTEN</button><button id="fast" style="margin-top:6px">×1</button></div>
- <div class="cards" id="cards"></div>
-</footer>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0,#173052,#050812 45%,#020409);color:#eaf3ff;font:15px/1.5 system-ui,Segoe UI,sans-serif}.wrap{max-width:1100px;margin:auto;padding:28px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px}.logo{font-size:32px;letter-spacing:6px;color:#62dcff}.muted{color:#8da0bb}.panel{background:#0b1220e8;border:1px solid #263957;border-radius:16px;padding:20px;margin-top:20px}.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:15px}.game{background:#0d1727;border:1px solid #29415f;border-radius:14px;padding:18px}.game h2{margin:0 0 7px}.tag{display:inline-block;border:1px solid #385272;border-radius:6px;padding:2px 7px;color:#62dcff;margin-bottom:10px}button{font:inherit;color:#eaf3ff;background:#14243a;border:1px solid #355274;border-radius:9px;padding:10px 14px;cursor:pointer}button:hover{border-color:#62dcff}.auth{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:560px}input{width:100%;padding:11px;background:#060c16;color:#eaf3ff;border:1px solid #304761;border-radius:8px}.wide{grid-column:1/-1}.account{display:flex;gap:10px;align-items:center}@media(max-width:600px){.top{align-items:flex-start;flex-direction:column}.auth{grid-template-columns:1fr}.wrap{padding:18px}}
+</style></head><body><div class="wrap">
+<div class="top"><div><div class="logo">GALAKTOGON</div><div class="muted">GAMES // FRONTIER NETWORK</div></div><div id="user" class="account"></div></div>
+<section id="auth" class="panel"><h1 id="authTitle">Anmelden</h1><p class="muted">Ein Konto speichert deinen Fortschritt geräteübergreifend.</p><div class="auth"><input id="email" type="email" placeholder="E-Mail"><input id="pass" type="password" placeholder="Passwort"><button onclick="signup()">Konto erstellen</button><button onclick="login()">Anmelden</button><button id="logout" class="wide" onclick="logout()" style="display:none">Abmelden</button></div><p id="msg" class="muted"></p></section>
+<section class="panel"><h1>Spiele</h1><div class="games">
+<article class="game"><span class="tag">BETA 2</span><h2>GALAKTOGON — Frontier Protocol</h2><p class="muted">Sternkarte, Missionen, Schiff, Kampf, Ausbildung, Fraktionen und Uldaner-Mysterium.</p><button onclick="openGame('galaktogon-beta-2.html')">Spiel starten</button></article>
+<article class="game"><span class="tag">BETA</span><h2>Galactic Defense</h2><p class="muted">Futuristisches Tower-Defense-Spiel mit Wellen, Türmen und Upgrades.</p><button onclick="openGame('galactic-defense.html')">Spiel starten</button></article>
+<article class="game"><span class="tag">COMING SOON</span><h2>Weitere Spiele</h2><p class="muted">Neue Projekte erscheinen automatisch auf dieser Startseite.</p></article>
+</div></section>
 </div>
 <script>
-"use strict";
-const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
-let W=0,H=0,DPR=1,paused=false,fast=1,gameOver=false;
-const path=[[-.05,.48],[.16,.48],[.25,.30],[.47,.30],[.57,.55],[.76,.55],[.84,.34],[1.05,.34]];
-const platforms=[[.13,.73],[.30,.72],[.42,.18],[.54,.76],[.70,.22],[.78,.73],[.62,.42],[.35,.46]];
-let towers=[],enemies=[],shots=[],particles=[],wave=0,money=320,hp=100,spawn=0,spawnLeft=0,last=0,nextWaveAt=0;
-const cards=[
- {name:"Laser-Turm",cost:120,desc:"Erhöht den Schaden aller Türme um 20%.",rarity:"SELTEN",fn:()=>globalDmg*=1.2},
- {name:"Drohnen-Schwarm",cost:80,desc:"Erhöht die Schussfrequenz aller Türme um 25%.",rarity:"EPISCH",fn:()=>globalRate*=1.25},
- {name:"Reichweiten-Upgrade",cost:150,desc:"Erhöht die Reichweite aller Türme um 25%.",rarity:"UNGEWÖHNLICH",fn:()=>globalRange*=1.25},
- {name:"Energie-Kern",cost:100,desc:"Gibt sofort 100 Energie.",rarity:"SELTEN",fn:()=>money+=100},
- {name:"Nanoreparatur",cost:130,desc:"Repariert die Basis um 25 Punkte.",rarity:"EPISCH",fn:()=>hp=Math.min(100,hp+25)},
- {name:"Overclock",cost:180,desc:"Alle Türme verursachen 50% mehr Schaden.",rarity:"LEGENDÄR",fn:()=>globalDmg*=1.5}
-];
-let globalDmg=1,globalRate=1,globalRange=1;
-function resize(){DPR=Math.min(2,devicePixelRatio||1);W=canvas.clientWidth;H=canvas.clientHeight;canvas.width=W*DPR;canvas.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}addEventListener("resize",resize);resize();
-function pos(p){return [p[0]*W,p[1]*H]}
-function pathPoint(t){let n=path.length-1,x=t*n,i=Math.min(n-1,Math.floor(x)),f=x-i,a=pos(path[i]),b=pos(path[i+1]);return[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]}
-function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1])}
-function drawBg(){
- ctx.fillStyle="#071020";ctx.fillRect(0,0,W,H);
- for(let i=0;i<75;i++){let x=(i*97)%W,y=(i*53)%H;ctx.fillStyle=i%5?"#42628a55":"#7df4ff99";ctx.fillRect(x,y,1.5,1.5)}
- ctx.strokeStyle="#1a2944";ctx.lineWidth=55;ctx.lineCap="round";ctx.beginPath();path.forEach((p,i)=>{let q=pos(p);i?ctx.lineTo(...q):ctx.moveTo(...q)});ctx.stroke();
- ctx.strokeStyle="#263b5c";ctx.lineWidth=43;ctx.beginPath();path.forEach((p,i)=>{let q=pos(p);i?ctx.lineTo(...q):ctx.moveTo(...q)});ctx.stroke();
- platforms.forEach((p,i)=>{let q=pos(p);ctx.fillStyle="#101d30";ctx.strokeStyle=i===selectedPlatform?"#39e7ff":"#28405f";ctx.lineWidth=2;ctx.beginPath();ctx.arc(q[0],q[1],25,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.strokeStyle="#1d3650";ctx.beginPath();ctx.arc(q[0],q[1],18,0,Math.PI*2);ctx.stroke()});
- let b=pos([.91,.63]);ctx.fillStyle="#122b43";ctx.strokeStyle="#39e7ff";ctx.lineWidth=3;ctx.beginPath();ctx.arc(b[0],b[1],32,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#ff405f";ctx.beginPath();ctx.arc(b[0],b[1],14,0,Math.PI*2);ctx.fill();
-}
-let selectedPlatform=-1;
-function drawTowers(){towers.forEach(t=>{let p=pos(platforms[t.pi]);ctx.save();ctx.translate(...p);ctx.rotate(t.rot||0);ctx.fillStyle=t.type===1?"#8c54ff":"#38dff7";ctx.shadowBlur=12;ctx.shadowColor=ctx.fillStyle;ctx.fillRect(-7,-10,14,20);ctx.fillStyle="#dffaff";ctx.fillRect(-3,-18,6,8);ctx.restore();})}
-function drawEnemies(){enemies.forEach(e=>{let p=pathPoint(e.t);ctx.fillStyle=e.elite?"#ff5577":"#c34dff";ctx.shadowBlur=10;ctx.shadowColor=ctx.fillStyle;ctx.beginPath();ctx.arc(p[0],p[1],e.elite?13:9,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle="#111";ctx.beginPath();ctx.arc(p[0]+3,p[1]-2,2,0,Math.PI*2);ctx.fill();ctx.fillStyle="#29102f";ctx.fillRect(p[0]-12,p[1]-18,24,3);ctx.fillStyle="#63ffad";ctx.fillRect(p[0]-12,p[1]-18,24*Math.max(0,e.hp/e.max),3)})}
-function drawShots(){shots.forEach(s=>{ctx.strokeStyle=s.color;ctx.lineWidth=3;ctx.shadowBlur=12;ctx.shadowColor=s.color;ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(s.tx,s.ty);ctx.stroke();ctx.shadowBlur=0});particles.forEach(p=>{ctx.fillStyle=p.color;ctx.globalAlpha=p.life;p.x+=p.vx;p.y+=p.vy;p.life-=.035;ctx.fillRect(p.x,p.y,3,3);ctx.globalAlpha=1})}
-function spawnEnemy(){let elite=wave>=4&&Math.random()<.12;enemies.push({t:0,hp:elite?150:35+wave*5,max:elite?150:35+wave*5,speed:(.025+wave*.001)*(elite?.65:1),elite})}
-function startWave(){if(spawnLeft>0||gameOver)return;wave++;spawnLeft=7+wave*2;spawn=0;document.getElementById("status").textContent="WELLE AKTIV";document.getElementById("wave").textContent=wave+"/20";if(wave>20){win();return}}
-function finishWave(){if(wave>=20){win();return}money+=45+wave*8;showCards();document.getElementById("status").textContent="KARTENWAHL";nextWaveAt=0}
-function showCards(){let list=[...cards].sort(()=>Math.random()-.5).slice(0,3);document.getElementById("cards").innerHTML=list.map((c,i)=>`<div class="card"><h3>${c.name}</h3><p>${c.desc}</p><div class="rarity">${c.rarity}</div><div class="cost">${c.cost} ENERGIE</div><button data-card="${cards.indexOf(c)}" style="margin-top:8px">KARTE KAUFEN</button></div>`).join("");document.querySelectorAll("[data-card]").forEach(b=>b.onclick=()=>{let c=cards[+b.dataset.card];if(money>=c.cost){money-=c.cost;c.fn();document.getElementById("cards").innerHTML="";document.getElementById("status").textContent="BEREIT";nextWaveAt=performance.now()+8000}})}
-function build(pi){if(towers.some(t=>t.pi===pi))return;if(money<90)return;money-=90;towers.push({pi,type:towers.length%3?0:1,cool:0,rot:0})}
-function shoot(t,e){let p=pos(platforms[t.pi]),q=pathPoint(e.t),d=dist(p,q);if(d>135*globalRange)return;t.cool=28/globalRate;e.hp-=14*globalDmg;shots.push({x:p[0],y:p[1],tx:q[0],ty:q[1],color:t.type?"#b86cff":"#42edff"});for(let i=0;i<4;i++)particles.push({x:q[0],y:q[1],vx:(Math.random()-.5)*3,vy:(Math.random()-.5)*3,life:1,color:"#fff"})}
-function update(dt){if(paused||gameOver)return;dt*=fast;if(spawnLeft>0){spawn-=dt;if(spawn<=0){spawnEnemy();spawnLeft--;spawn=700}}else if(!enemies.length&&wave){finishWave()}enemies.forEach(e=>e.t+=e.speed*dt/1000);enemies=enemies.filter(e=>{if(e.hp<=0){money+=10;return false}if(e.t>=1){hp-=e.elite?18:7;return false}return true});towers.forEach(t=>{t.cool-=dt;t.rot+=dt*.002;if(t.cool<=0){let p=pos(platforms[t.pi]),best=null,bd=9999;enemies.forEach(e=>{let q=pathPoint(e.t),d=dist(p,q);if(d<bd&&d<135*globalRange){bd=d;best=e}});if(best)shoot(t,best)}});shots=[];particles=particles.filter(p=>p.life>0);if(hp<=0)lose()}
-function lose(){gameOver=true;document.getElementById("result").textContent="Welle "+wave+" erreicht. Die Neon-Aliens haben die Verteidigung durchbrochen.";document.getElementById("modal").classList.add("on")}
-function win(){gameOver=true;document.getElementById("result").textContent="Sektor 01 gesichert. 20 Wellen überstanden.";document.querySelector(".box h1").textContent="SEKTOR GESICHERT";document.getElementById("modal").classList.add("on")}
-function loop(now){let dt=Math.min(40,now-last||16);last=now;update(dt);draw();document.getElementById("hp").textContent=Math.max(0,hp);document.getElementById("money").textContent=Math.floor(money);if(nextWaveAt){let s=Math.max(0,Math.ceil((nextWaveAt-now)/1000));document.getElementById("timer").textContent="Nächste Runde: "+s;if(s<=0){nextWaveAt=0;startWave()}}requestAnimationFrame(loop)}
-function draw(){drawBg();drawTowers();drawEnemies();drawShots()}
-canvas.addEventListener("pointerdown",e=>{let r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;selectedPlatform=-1;platforms.forEach((p,i)=>{if(dist([x,y],pos(p))<30){selectedPlatform=i;build(i)}})});
-document.getElementById("start").onclick=()=>{if(!nextWaveAt)startWave()};document.getElementById("fast").onclick=e=>{fast=fast===1?2:1;e.target.textContent="×"+fast};
-nextWaveAt=performance.now()+8000;requestAnimationFrame(loop);
-</script>
-</body>
-</html>
+const supabase=window.supabase.createClient("https://tkbopzdurmejcwawtswa.supabase.co","sb_publishable_NaSGbCf_A8HrrPV6O9D0ig_0tiFPA6D");
+async function refresh(){const {data:{user}}=await supabase.auth.getUser();document.getElementById("user").innerHTML=user?("Angemeldet: <b>"+(user.email||"Pilot")+"</b>"):"Nicht angemeldet";document.getElementById("logout").style.display=user?"block":"none"}
+async function signup(){const e=email.value.trim(),p=pass.value;if(!e||p.length<6)return msg("E-Mail und mindestens 6 Zeichen Passwort eingeben.");const {error}=await supabase.auth.signUp({email:e,password:p});msg(error?error.message:"Konto erstellt. Falls Bestätigung aktiv ist, prüfe deine E-Mail.");refresh()}
+async function login(){const {error}=await supabase.auth.signInWithPassword({email:email.value.trim(),password:pass.value});msg(error?error.message:"Anmeldung erfolgreich.");refresh()}
+async function logout(){await supabase.auth.signOut();msg("Abgemeldet.");refresh()}
+function msg(x){document.getElementById("msg").textContent=x}
+async function openGame(path){const {data:{user}}=await supabase.auth.getUser();if(!user){msg("Bitte zuerst anmelden.");return}location.href=path}
+supabase.auth.onAuthStateChange(()=>refresh());refresh();
+</script></body></html>
