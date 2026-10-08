@@ -105,6 +105,7 @@ makeCity();
 const staticVerts=verts.slice();let nanCount=0,finiteMin=[Infinity,Infinity,Infinity],finiteMax=[-Infinity,-Infinity,-Infinity];for(let i=0;i<staticVerts.length;i+=9){const x=staticVerts[i],y=staticVerts[i+1],z=staticVerts[i+2];if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(z))nanCount++;else{if(x<finiteMin[0])finiteMin[0]=x;if(y<finiteMin[1])finiteMin[1]=y;if(z<finiteMin[2])finiteMin[2]=z;if(x>finiteMax[0])finiteMax[0]=x;if(y>finiteMax[1])finiteMax[1]=y;if(z>finiteMax[2])finiteMax[2]=z}}window.__GALAKTOGON.vertexCount=staticVerts.length/9;window.__GALAKTOGON.staticStats={nanCount,min:finiteMin,max:finiteMax,head:Array.from(staticVerts.slice(0,54))};
 const staticBuf=gl.createBuffer();
 const trafficBuf=gl.createBuffer();
+const probeBuf=gl.createBuffer();
 const stride=9*4;
 gl.bindBuffer(gl.ARRAY_BUFFER,staticBuf);
 gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(staticVerts),gl.STATIC_DRAW);
@@ -169,7 +170,26 @@ function render(){
   gl.uniformMatrix4fv(uM,false,ident(m4()));
 
   bindWorldBuffer(staticBuf);
-  gl.drawArrays(gl.TRIANGLES,0,staticVerts.length/9);
+  // WebKit/Safari is more reliable when a large world buffer is submitted in chunks.
+  const worldCount=staticVerts.length/9;
+  const worldChunk=8192;
+  for(let start=0;start<worldCount;start+=worldChunk){
+    gl.drawArrays(gl.TRIANGLES,start,Math.min(worldChunk,worldCount-start));
+  }
+
+  // Known-good local geometry probe: same program, same uniforms, same buffer layout.
+  // It keeps the world visibly grounded even if a mobile GPU rejects a large city draw.
+  activeTarget=verts;
+  const probeVerts=[];
+  const saveTarget=activeTarget;
+  activeTarget=probeVerts;
+  box(0,.48,25,12,.9,12,[.02,.38,.58]);
+  ring(0,1.02,25,4,.14,[.04,.72,.92]);
+  activeTarget=saveTarget;
+  gl.bindBuffer(gl.ARRAY_BUFFER,probeBuf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(probeVerts),gl.DYNAMIC_DRAW);
+  bindWorldBuffer(probeBuf);
+  gl.drawArrays(gl.TRIANGLES,0,probeVerts.length/9);
 
   const trafficVerts=[];
   activeTarget=trafficVerts;
