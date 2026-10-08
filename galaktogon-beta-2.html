@@ -35,18 +35,18 @@ button:hover{border-color:var(--cyan)}
 #message.show{opacity:1;transform:translate(-50%,0)}
 #diag{position:fixed;left:12px;bottom:12px;z-index:9999;max-width:calc(100vw - 24px);max-height:40vh;overflow:auto;padding:12px 14px;background:rgba(3,8,16,.96);border:1px solid #ff4f72;color:#ffd4dc;font:12px/1.45 ui-monospace,monospace;box-shadow:0 0 28px #ff285044;display:none;white-space:pre-wrap}
 #diag.bad{display:block}
-#touch{display:none;position:absolute;inset:0;z-index:6;pointer-events:none}
+#touch{display:none;position:absolute;inset:0;z-index:6;pointer-events:none;touch-action:none}
 #joy{position:absolute;left:22px;bottom:30px;width:112px;height:112px;border:1px solid #6be1ff88;border-radius:50%;background:#06132188;pointer-events:auto;touch-action:none}
 #joy i{position:absolute;width:38px;height:38px;left:36px;top:36px;border-radius:50%;background:#4bdcff66;border:1px solid #9eeeff}
 #touchLook{position:absolute;right:0;top:18%;width:55%;height:65%;pointer-events:auto;touch-action:none}
 #touchE{position:absolute;right:26px;bottom:42px;pointer-events:auto;border-radius:50%;width:62px;height:62px;background:#071b2bdd;border-color:var(--cyan)}
-@media(max-width:700px){#touch{display:block}.hud{padding:12px;display:block}.stats{margin-top:8px}.brand{font-size:12px}.stats span{font-size:11px;padding:5px 8px}#hint{bottom:9px;width:92%;font-size:12px}#interact{bottom:86px}}
+@media(max-width:700px){#touch{display:block}#hint{display:none}#touchE:active{transform:scale(.94);box-shadow:0 0 24px #42dfff55}.hud{padding:12px;display:block}.stats{margin-top:8px}.brand{font-size:12px}.stats span{font-size:11px;padding:5px 8px}#hint{bottom:9px;width:92%;font-size:12px}#interact{bottom:86px}}
 #startUI{position:absolute;inset:0;z-index:8;display:grid;place-items:center;background:linear-gradient(180deg,rgba(2,6,12,.18),rgba(2,6,12,.62));transition:opacity .45s}#startUI.off{opacity:0;pointer-events:none}.startPanel{width:min(760px,92vw);text-align:center;padding:28px;border:1px solid #6bdfff55;background:linear-gradient(145deg,#06111ddd,#02070ddd);box-shadow:0 0 70px #00cfff20;backdrop-filter:blur(10px);border-radius:4px}.startKicker{font:700 11px ui-monospace,monospace;letter-spacing:4px;color:#8baec8}.startTitle{margin:7px 0;font-size:clamp(42px,8vw,82px);line-height:.9;letter-spacing:8px;color:#dff9ff;text-shadow:0 0 28px #44dfff77}.startSub{color:#69dfff;letter-spacing:3px;font-size:12px}.startGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:22px 0}.startCell{padding:10px;border:1px solid #315170;background:#07132199}.startCell b{display:block;color:#72e5ff;font-size:18px}.startCell span{font-size:9px;color:#8fa8c2;letter-spacing:1px}.startBtn{min-width:230px;padding:14px 22px;border:1px solid #67ddff;background:#062033;color:#dffaff;letter-spacing:3px;font-weight:800;box-shadow:0 0 25px #27cfff22}.startBtn:hover{background:#0a3047;box-shadow:0 0 35px #27cfff44}.startHint{margin-top:13px;color:#718ca4;font-size:10px;letter-spacing:1px}#missionPanel{position:absolute;z-index:4;left:20px;top:92px;width:250px;padding:13px;border-left:2px solid #54dfff;background:linear-gradient(90deg,#061522dd,#06152288,transparent);pointer-events:none}.panelLabel{font:700 9px ui-monospace,monospace;color:#62dcff;letter-spacing:2px}.panelMain{font-weight:800;margin-top:4px}.panelSmall{font-size:10px;color:#91a8bd;margin-top:4px}#bottomHUD{position:absolute;z-index:4;left:20px;right:20px;bottom:20px;display:flex;justify-content:space-between;align-items:end;pointer-events:none}.meter{width:210px;height:9px;border:1px solid #315170;background:#071321cc;padding:1px}.meter i{display:block;width:100%;height:100%;background:#42dfff;box-shadow:0 0 12px #42dfff}.weapon{padding:10px 14px;border:1px solid #315170;background:#061321dd;text-align:right}.weapon b{color:#72e5ff;font-size:17px}.weapon span{display:block;color:#8fa8c2;font-size:9px;letter-spacing:1px}@media(max-width:700px){.startGrid{gap:5px}.startPanel{padding:20px}.startTitle{letter-spacing:4px}.startBtn{width:100%}#missionPanel{left:10px;top:125px;width:190px}.meter{width:145px}}</style>
 </head><body>
 <div id="boot"><div class="boot"><div class="logo">GALAKTOGON</div><div class="muted">FRONTIER PROTOCOL // 3D CINEMATIC BUILD</div><p id="msg">Initialisiere volumetrische Welt…</p><div class="bar"><i id="prog"></i></div></div></div>
 <div id="game" class="hidden"><canvas id="world"></canvas><div id="cross"></div><div id="startUI"><div class="startPanel"><div class="startKicker">GALAKTOGON // FRONTIER PROTOCOL</div><div class="startTitle">ASTERION</div><div class="startSub">PLANETARY FRONTIER // SEKTOR 07</div><div class="startGrid"><div class="startCell"><b>07</b><span>SEKTOR</span></div><div class="startCell"><b>100%</b><span>HÜLLE</span></div><div class="startCell"><b>500</b><span>GALACTIC CREDITS</span></div></div><button id="startBtn" class="startBtn">▶ MISSION STARTEN</button><div class="startHint">WASD · MAUS · SHIFT · E &nbsp; // &nbsp; SYSTEM ONLINE</div></div></div><div id="missionPanel"><div class="panelLabel">AKTIVE MISSION</div><div class="panelMain">FRONTIER PROTOCOL</div><div class="panelSmall">Untersuche den Sektor und erreiche das Missions-Terminal.</div></div><div id="bottomHUD"><div><div class="panelLabel">SUIT INTEGRITY</div><div class="meter"><i id="hullBar"></i></div></div><div class="weapon"><b>STANDARD BLASTER</b><span>ENERGY 100 // READY</span></div></div>
 <div class="hud"><div class="brand">GALAKTOGON // FRONTIER</div><div class="stats"><span>LV <b id="lv">1</b></span><span>XP <b id="xp">0</b></span><span>GC <b id="gc">500</b></span><span>HÜLLE <b id="hull">100</b>%</span></div></div>
-<div id="hint">WASD = Bewegen · Maus = Kamera · Shift = Sprint · E = Interagieren</div>
+<div id="hint">Desktop: WASD · Maus · Shift · E  |  Mobile: linker Stick · rechte Seite Kamera · E-Aktion</div>
 <div id="interact" class="hidden"><b id="interactTitle"></b><br><span id="interactText">E drücken</span></div><div id="message"></div><div id="touch"><div id="joy"><i></i></div><div id="touchLook"></div><button id="touchE">E</button></div></div>
 <div id="diag"></div><script>
 const SUPABASE_URL="https://tkbopzdurmejcwawtswa.supabase.co",SUPABASE_KEY="sb_publishable_NaSGbCf_A8HrrPV6O9D0ig_0tiFPA6D",STORAGE_KEY="sb-tkbopzdurmejcwawtswa-auth-token";
@@ -59,7 +59,7 @@ localStorage.removeItem("GALA_BETA2");
 const diag=document.getElementById("diag");function fatal(e){const m=e instanceof Error?(e.stack||e.message):String(e);diag.textContent="GALAKTOGON START-/RENDERFEHLER\\n"+m;diag.className="bad";$("msg").textContent="STARTFEHLER – Diagnose unten";console.error("[GALAKTOGON]",e)}window.addEventListener("error",e=>fatal(e.error||e.message));window.addEventListener("unhandledrejection",e=>fatal(e.reason||"Unhandled promise rejection"));
 const $=id=>document.getElementById(id);
 let S=JSON.parse(localStorage.getItem("GALA_BETA2_V2")||"null")||{name:"Nova",race:"Terraner",level:1,xp:0,gc:500,rep:0,hull:100,energy:100,hyper:100,sector:7,planet:"Asterion",inv:["Standard-Blaster","Medkit","Hyperzelle"],missions:[],logs:[],faction:"Neutral",kills:0};
-function save(){localStorage.setItem("GALA_BETA2_V2",JSON.stringify(S));stats();void cloudSave()}function stats(){$("lv").textContent=S.level;$("xp").textContent=S.xp;$("gc").textContent=S.gc;$("hull").textContent=Math.max(0,S.hull)}function startMission(){$("startUI").classList.add("off");show("FRONTIER PROTOCOL // MISSION AKTIV");try{const r=canvas.requestPointerLock?.();if(r?.catch)r.catch(()=>{})}catch{}}document.addEventListener("DOMContentLoaded",()=>document.getElementById("startBtn")?.addEventListener("click",startMission));
+function save(){localStorage.setItem("GALA_BETA2_V2",JSON.stringify(S));stats();void cloudSave()}function stats(){$("lv").textContent=S.level;$("xp").textContent=S.xp;$("gc").textContent=S.gc;$("hull").textContent=Math.max(0,S.hull)}function startMission(){$("startUI").classList.add("off");beginMission();try{const r=canvas.requestPointerLock?.();if(r?.catch)r.catch(()=>{})}catch{}}document.addEventListener("DOMContentLoaded",()=>document.getElementById("startBtn")?.addEventListener("click",startMission));
 function addXP(n){S.xp+=n;while(S.xp>=S.level*100){S.xp-=S.level*100;S.level++;show("RANGAUFSTIEG // LEVEL "+S.level)}save()}function show(x){$("message").textContent=x;$("message").classList.add("show");clearTimeout(show.t);show.t=setTimeout(()=>$("message").classList.remove("show"),2600)}
 function log(x){S.logs.unshift(new Date().toLocaleTimeString()+" // "+x);S.logs=S.logs.slice(0,40);save()}
 
@@ -134,15 +134,37 @@ function drawCharacter(){
   {type:"ellipsoid",p:[0,2.48,-.32],s:[.28,.18,.10],c:[.06,.48,.66]}
  ];
  for(const q of parts){
-  const p=q.p||[0,0,0],s=q.s||[1,1,1],c=q.c||[.1,.2,.3];
-  if(q.type==="box")box(px+p[0],p[1],pz+p[2],s[0],s[2],s[1],c);
-  else ellipsoid(px+p[0],p[1],pz+p[2],s[0],s[1],s[2],c);
+  const p=q.p||[0,0,0],s=q.s||[1,1,1],c=q.c||[.1,.2,.3],ground=.96;
+  if(q.type==="box")box(px+p[0],ground+p[1],pz+p[2],s[0],s[2],s[1],c);
+  else ellipsoid(px+p[0],ground+p[1],pz+p[2],s[0],s[1],s[2],c);
  }
  gl.bindBuffer(gl.ARRAY_BUFFER,charBuf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(charVerts),gl.DYNAMIC_DRAW);bindCharacterBuffer();
  gl.uniformMatrix4fv(uM,false,ident(m4()));gl.drawArrays(gl.TRIANGLES,0,charVerts.length/9);activeTarget=verts
 }
-function interact(){near=findNear();if(!near)return;if(near==="terminal"){addXP(15);S.gc+=25;log("MISSION // Terminal synchronisiert");show("MISSIONSDATEN EMPFANGEN // +15 XP / +25 GC")}else if(near==="relay"){addXP(10);show("DOCKING RELAY // +10 XP")}else if(near==="repair"){S.hull=100;show("REPAIR BAY // HÜLLE 100%")}else{addXP(5);show("FRONTIER // Sektorobjekt untersucht")}save()}
-function findNear(){let best=null,bd=8;for(const t of terminals){const d=Math.hypot(px-t.x,pz-t.z);if(d<bd){bd=d;best=t.kind||"terminal"}}return best}
+let missionActive=false,missionStep=0,interactionLock=0;
+function missionText(){
+  const m=[
+    ["MISSION 01 // KONTAKT","Erreiche das Frontier-Terminal und synchronisiere die Missionsdaten."],
+    ["MISSION 02 // RELAIS","Folge dem Marker zum Docking-Relay bei Sektor 07-DELTA."],
+    ["MISSION 03 // SYSTEMCHECK","Aktiviere die Repair Bay und stelle die Anzugssysteme wieder her."],
+    ["MISSION 04 // EXTRACTION","Zurück zum Frontier-Terminal. Starte die Extraktion."],
+    ["MISSION COMPLETE","Sektor 07 gesichert. Neue Aufträge werden vorbereitet."]
+  ][missionStep];
+  $("missionTitle").textContent=m[0];$("missionText").textContent=m[1];
+}
+function beginMission(){missionActive=true;missionStep=0;missionText();show("MISSION 01 // ZIEL MARKIERT");}
+function interact(){
+  if(!missionActive||performance.now()<interactionLock)return;
+  near=findNear();if(!near)return;
+  let accepted=false;
+  if(missionStep===0&&near==="terminal"){missionStep=1;addXP(15);S.gc+=25;log("MISSION 01 // Terminal synchronisiert");show("MISSIONSDATEN EMPFANGEN // +15 XP / +25 GC");accepted=true}
+  else if(missionStep===1&&near==="relay"){missionStep=2;addXP(20);log("MISSION 02 // Docking Relay aktiviert");show("DOCKING RELAY ONLINE // +20 XP");accepted=true}
+  else if(missionStep===2&&near==="repair"){missionStep=3;S.hull=100;addXP(20);log("MISSION 03 // Repair Bay abgeschlossen");show("SYSTEMCHECK ABGESCHLOSSEN // +20 XP");accepted=true}
+  else if(missionStep===3&&near==="terminal"){missionStep=4;addXP(50);S.gc+=100;log("MISSION 04 // Extraction abgeschlossen");show("EXTRACTION ERFOLGREICH // +50 XP / +100 GC");accepted=true}
+  else show("ZIEL NICHT AKTIV // Folge der aktuellen Mission");
+  if(accepted){interactionLock=performance.now()+900;missionText();save()}
+}
+function findNear(){let best=null,bd=3.2;for(const t of terminals){const d=Math.hypot(px-t.x,pz-t.z);if(d<bd){bd=d;best=t.kind||"terminal"}}return best}
 function stars(){gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.clearColor(.002,.005,.012,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT)}
 function render(){
   window.__GALAKTOGON.renderCount++;
@@ -225,12 +247,13 @@ function render(){
 }
 let firstFrameReady=false;function loop(now){try{const dt=Math.min(.04,(now-last)/1000);last=now;if(!firstFrameReady){$("boot").classList.add("hidden");$("game").classList.remove("hidden");$("startUI").classList.remove("off");resize();firstFrameReady=true}move(dt);render();requestAnimationFrame(loop)}catch(e){fatal(e)}}
 const joy=$("joy"),touchLook=$("touchLook"),touchE=$("touchE");let joyId=null,joyCx=0,joyCy=0;
-joy?.addEventListener("touchstart",e=>{const q=e.changedTouches[0];joyId=q.identifier;joyCx=q.clientX;joyCy=q.clientY},{passive:true});
-joy?.addEventListener("touchmove",e=>{const q=[...e.touches].find(x=>x.identifier===joyId);if(!q)return;const dx=q.clientX-joyCx,dy=q.clientY-joyCy;keys.d=dx>18;keys.a=dx<-18;keys.s=dy>18;keys.w=dy<-18},{passive:true});
-joy?.addEventListener("touchend",()=>{keys.w=keys.a=keys.s=keys.d=false},{passive:true});
-let lookId=null,lastLX=0;touchLook?.addEventListener("touchstart",e=>{const q=e.changedTouches[0];lookId=q.identifier;lastLX=q.clientX},{passive:true});
-touchLook?.addEventListener("touchmove",e=>{const q=[...e.touches].find(x=>x.identifier===lookId);if(!q)return;camYaw+=(q.clientX-lastLX)*.006;lastLX=q.clientX;if(!Number.isFinite(camYaw))camYaw=0},{passive:true});
-touchLook?.addEventListener("touchend",()=>lookId=null,{passive:true});touchE?.addEventListener("click",()=>interact());
+joy?.addEventListener("touchstart",e=>{e.preventDefault();const q=e.changedTouches[0];joyId=q.identifier;joyCx=q.clientX;joyCy=q.clientY},{passive:false});
+joy?.addEventListener("touchmove",e=>{e.preventDefault();const q=[...e.touches].find(x=>x.identifier===joyId);if(!q)return;const dx=q.clientX-joyCx,dy=q.clientY-joyCy;keys.d=dx>16;keys.a=dx<-16;keys.s=dy>16;keys.w=dy<-16},{passive:false});
+joy?.addEventListener("touchend",e=>{e.preventDefault();keys.w=keys.a=keys.s=keys.d=false},{passive:false});
+let lookId=null,lastLX=0;touchLook?.addEventListener("touchstart",e=>{e.preventDefault();const q=e.changedTouches[0];lookId=q.identifier;lastLX=q.clientX},{passive:false});
+touchLook?.addEventListener("touchmove",e=>{e.preventDefault();const q=[...e.touches].find(x=>x.identifier===lookId);if(!q)return;camYaw+=(q.clientX-lastLX)*.006;lastLX=q.clientX;if(!Number.isFinite(camYaw))camYaw=0},{passive:false});
+touchLook?.addEventListener("touchend",e=>{e.preventDefault();lookId=null},{passive:false});
+touchE?.addEventListener("touchstart",e=>{e.preventDefault();interact()},{passive:false});
 void loadPlayerModel();
 let p=0,t=setInterval(()=>{p=Math.min(100,p+10);$("prog").style.width=p+"%";$("msg").textContent=["Initialisiere volumetrische Welt…","Erzeuge Megacity…","Lade Beleuchtung…","Synchronisiere Pilot…","Aktiviere 3D-Renderer…","Bereit."][Math.min(5,Math.floor(p/20))];if(p>=100){clearInterval(t);stats();requestAnimationFrame(loop);setTimeout(()=>{cloudLoad().then(()=>stats()).catch(()=>{})},0)}} ,120);
 </script></body></html>
