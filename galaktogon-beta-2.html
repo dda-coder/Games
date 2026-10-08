@@ -134,14 +134,14 @@ function drawCharacter(){
   {type:"ellipsoid",p:[0,2.48,-.32],s:[.28,.18,.10],c:[.06,.48,.66]}
  ];
  for(const q of parts){
-  const p=q.p||[0,0,0],s=q.s||[1,1,1],c=q.c||[.1,.2,.3],ground=.96;
+  const p=q.p||[0,0,0],s=q.s||[1,1,1],c=q.c||[.1,.2,.3],ground=.60;
   if(q.type==="box")box(px+p[0],ground+p[1],pz+p[2],s[0],s[2],s[1],c);
   else ellipsoid(px+p[0],ground+p[1],pz+p[2],s[0],s[1],s[2],c);
  }
  gl.bindBuffer(gl.ARRAY_BUFFER,charBuf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(charVerts),gl.DYNAMIC_DRAW);bindCharacterBuffer();
  gl.uniformMatrix4fv(uM,false,ident(m4()));gl.drawArrays(gl.TRIANGLES,0,charVerts.length/9);activeTarget=verts
 }
-let missionActive=false,missionStep=0,interactionLock=0;
+let missionActive=false,missionStep=Number.isFinite(S.missionStep)?S.missionStep:0,interactionLock=0;
 function missionText(){
   const m=[
     ["MISSION 01 // KONTAKT","Erreiche das Frontier-Terminal und synchronisiere die Missionsdaten."],
@@ -152,15 +152,15 @@ function missionText(){
   ][missionStep];
   $("missionTitle").textContent=m[0];$("missionText").textContent=m[1];
 }
-function beginMission(){missionActive=true;missionStep=0;missionText();show("MISSION 01 // ZIEL MARKIERT");}
+function beginMission(){missionActive=true;missionStep=Math.max(0,Math.min(4,Number(S.missionStep)||0));missionText();show(missionStep<4?"MISSION FORTSETZEN // ZIEL MARKIERT":"SEKTOR 07 // MISSION BEREITS ABGESCHLOSSEN");}
 function interact(){
   if(!missionActive||performance.now()<interactionLock)return;
   near=findNear();if(!near)return;
   let accepted=false;
-  if(missionStep===0&&near==="terminal"){missionStep=1;addXP(15);S.gc+=25;log("MISSION 01 // Terminal synchronisiert");show("MISSIONSDATEN EMPFANGEN // +15 XP / +25 GC");accepted=true}
-  else if(missionStep===1&&near==="relay"){missionStep=2;addXP(20);log("MISSION 02 // Docking Relay aktiviert");show("DOCKING RELAY ONLINE // +20 XP");accepted=true}
-  else if(missionStep===2&&near==="repair"){missionStep=3;S.hull=100;addXP(20);log("MISSION 03 // Repair Bay abgeschlossen");show("SYSTEMCHECK ABGESCHLOSSEN // +20 XP");accepted=true}
-  else if(missionStep===3&&near==="terminal"){missionStep=4;addXP(50);S.gc+=100;log("MISSION 04 // Extraction abgeschlossen");show("EXTRACTION ERFOLGREICH // +50 XP / +100 GC");accepted=true}
+  if(missionStep===0&&near==="terminal"){missionStep=1;S.missionStep=missionStep;addXP(15);S.gc+=25;log("MISSION 01 // Terminal synchronisiert");show("MISSIONSDATEN EMPFANGEN // +15 XP / +25 GC");accepted=true}
+  else if(missionStep===1&&near==="relay"){missionStep=2;S.missionStep=missionStep;addXP(20);log("MISSION 02 // Docking Relay aktiviert");show("DOCKING RELAY ONLINE // +20 XP");accepted=true}
+  else if(missionStep===2&&near==="repair"){missionStep=3;S.missionStep=missionStep;S.hull=100;addXP(20);log("MISSION 03 // Repair Bay abgeschlossen");show("SYSTEMCHECK ABGESCHLOSSEN // +20 XP");accepted=true}
+  else if(missionStep===3&&near==="terminal"){missionStep=4;S.missionStep=missionStep;addXP(50);S.gc+=100;log("MISSION 04 // Extraction abgeschlossen");show("EXTRACTION ERFOLGREICH // +50 XP / +100 GC");accepted=true}
   else show("ZIEL NICHT AKTIV // Folge der aktuellen Mission");
   if(accepted){interactionLock=performance.now()+900;missionText();save()}
 }
@@ -248,10 +248,10 @@ function render(){
 let firstFrameReady=false;function loop(now){try{const dt=Math.min(.04,(now-last)/1000);last=now;if(!firstFrameReady){$("boot").classList.add("hidden");$("game").classList.remove("hidden");$("startUI").classList.remove("off");resize();firstFrameReady=true}move(dt);render();requestAnimationFrame(loop)}catch(e){fatal(e)}}
 const joy=$("joy"),touchLook=$("touchLook"),touchE=$("touchE");let joyId=null,joyCx=0,joyCy=0;
 joy?.addEventListener("touchstart",e=>{e.preventDefault();const q=e.changedTouches[0];joyId=q.identifier;joyCx=q.clientX;joyCy=q.clientY},{passive:false});
-joy?.addEventListener("touchmove",e=>{e.preventDefault();const q=[...e.touches].find(x=>x.identifier===joyId);if(!q)return;const dx=q.clientX-joyCx,dy=q.clientY-joyCy;keys.d=dx>16;keys.a=dx<-16;keys.s=dy>16;keys.w=dy<-16},{passive:false});
-joy?.addEventListener("touchend",e=>{e.preventDefault();keys.w=keys.a=keys.s=keys.d=false},{passive:false});
-let lookId=null,lastLX=0;touchLook?.addEventListener("touchstart",e=>{e.preventDefault();const q=e.changedTouches[0];lookId=q.identifier;lastLX=q.clientX},{passive:false});
-touchLook?.addEventListener("touchmove",e=>{e.preventDefault();const q=[...e.touches].find(x=>x.identifier===lookId);if(!q)return;camYaw+=(q.clientX-lastLX)*.006;lastLX=q.clientX;if(!Number.isFinite(camYaw))camYaw=0},{passive:false});
+joy?.addEventListener("touchmove",e=>{e.preventDefault();const q=[...e.touches].find(x=>x.identifier===joyId);if(!q)return;const dx=q.clientX-joyCx,dy=q.clientY-joyCy;const lim=34,ix=Math.max(-lim,Math.min(lim,dx)),iy=Math.max(-lim,Math.min(lim,dy));const knob=joy.querySelector("i");if(knob)knob.style.transform="translate("+ix+"px,"+iy+"px)";keys.d=dx>16;keys.a=dx<-16;keys.s=dy>16;keys.w=dy<-16},{passive:false});
+joy?.addEventListener("touchend",e=>{e.preventDefault();keys.w=keys.a=keys.s=keys.d=false;const knob=joy.querySelector("i");if(knob)knob.style.transform="translate(0,0)"},{passive:false});
+let lookId=null,lastLX=0,lastLY=0;touchLook?.addEventListener("touchstart",e=>{e.preventDefault();const q=e.changedTouches[0];lookId=q.identifier;lastLX=q.clientX;lastLY=q.clientY},{passive:false});
+touchLook?.addEventListener("touchmove",e=>{e.preventDefault();const q=[...e.touches].find(x=>x.identifier===lookId);if(!q)return;camYaw+=(q.clientX-lastLX)*.006;camPitch=Math.max(-.25,Math.min(.48,camPitch+(q.clientY-lastLY)*.003));lastLX=q.clientX;lastLY=q.clientY;if(!Number.isFinite(camYaw))camYaw=0},{passive:false});
 touchLook?.addEventListener("touchend",e=>{e.preventDefault();lookId=null},{passive:false});
 touchE?.addEventListener("touchstart",e=>{e.preventDefault();interact()},{passive:false});
 void loadPlayerModel();
