@@ -40,14 +40,14 @@ button:hover{border-color:var(--cyan)}
 #joy i{position:absolute;width:38px;height:38px;left:36px;top:36px;border-radius:50%;background:#4bdcff66;border:1px solid #9eeeff}
 #touchLook{position:absolute;right:0;top:18%;width:55%;height:65%;pointer-events:auto;touch-action:none}
 #touchE{position:absolute;right:26px;bottom:42px;pointer-events:auto;border-radius:50%;width:70px;height:70px;background:#071b2bdd;border:1px solid var(--cyan);color:#dffaff;font-weight:900;letter-spacing:1px;box-shadow:0 0 22px #24dfff22}
-@media(max-width:700px){#touch{display:block}#hint{display:none}#touchE:active{transform:scale(.94);box-shadow:0 0 24px #42dfff55}.hud{padding:12px;display:block}.stats{margin-top:8px}.brand{font-size:12px}.stats span{font-size:11px;padding:5px 8px}#hint{bottom:9px;width:92%;font-size:12px}#interact{bottom:86px}}
-#startUI{position:absolute;inset:0;z-index:8;display:grid;place-items:center;background:linear-gradient(180deg,rgba(2,6,12,.18),rgba(2,6,12,.62));transition:opacity .45s}#startUI.off{opacity:0;pointer-events:none}.startPanel{width:min(760px,92vw);text-align:center;padding:28px;border:1px solid #6bdfff55;background:linear-gradient(145deg,#06111ddd,#02070ddd);box-shadow:0 0 70px #00cfff20;backdrop-filter:blur(10px);border-radius:4px}.startKicker{font:700 11px ui-monospace,monospace;letter-spacing:4px;color:#8baec8}.startTitle{margin:7px 0;font-size:clamp(42px,8vw,82px);line-height:.9;letter-spacing:8px;color:#dff9ff;text-shadow:0 0 28px #44dfff77}.startSub{color:#69dfff;letter-spacing:3px;font-size:12px}.startGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:22px 0}.startCell{padding:10px;border:1px solid #315170;background:#07132199}.startCell b{display:block;color:#72e5ff;font-size:18px}.startCell span{font-size:9px;color:#8fa8c2;letter-spacing:1px}.startBtn{min-width:230px;padding:14px 22px;border:1px solid #67ddff;background:#062033;color:#dffaff;letter-spacing:3px;font-weight:800;box-shadow:0 0 25px #27cfff22}.startBtn:hover{background:#0a3047;box-shadow:0 0 35px #27cfff44}.startHint{margin-top:13px;color:#718ca4;font-size:10px;letter-spacing:1px}#missionPanel{position:absolute;z-index:4;left:20px;top:92px;width:250px;padding:13px;border-left:2px solid #54dfff;background:linear-gradient(90deg,#061522dd,#06152288,transparent);pointer-events:none}.panelLabel{font:700 9px ui-monospace,monospace;color:#62dcff;letter-spacing:2px}.panelMain{font-weight:800;margin-top:4px}.panelSmall{font-size:10px;color:#91a8bd;margin-top:4px}#bottomHUD{position:absolute;z-index:4;left:20px;right:20px;bottom:20px;display:flex;justify-content:space-between;align-items:end;pointer-events:none}.meter{width:210px;height:9px;border:1px solid #315170;background:#071321cc;padding:1px}.meter i{display:block;width:100%;height:100%;background:#42dfff;box-shadow:0 0 12px #42dfff}.weapon{padding:10px 14px;border:1px solid #315170;background:#061321dd;text-align:right}.weapon b{color:#72e5ff;font-size:17px}.weapon span{display:block;color:#8fa8c2;font-size:9px;letter-spacing:1px}@media(max-width:700px){.startGrid{gap:5px}.startPanel{padding:20px}.startTitle{letter-spacing:4px}.startBtn{width:100%}#missionPanel{left:10px;top:125px;width:190px}.meter{width:145px}}</style>
+@media(max-width:700px), (pointer:coarse){#touch{display:block}#hint{display:none}#touchE:active{transform:scale(.94);box-shadow:0 0 24px #42dfff55}.hud{padding:12px;display:block}.stats{margin-top:8px}.brand{font-size:12px}.stats span{font-size:11px;padding:5px 8px}#hint{bottom:9px;width:92%;font-size:12px}#interact{bottom:86px}}
+#startUI{position:absolute;inset:0;z-index:8;display:grid;place-items:center;background:linear-gradient(180deg,rgba(2,6,12,.18),rgba(2,6,12,.62));transition:opacity .45s}#startUI.off{opacity:0;pointer-events:none}.startPanel{width:min(760px,92vw);text-align:center;padding:28px;border:1px solid #6bdfff55;background:linear-gradient(145deg,#06111ddd,#02070ddd);box-shadow:0 0 70px #00cfff20;backdrop-filter:blur(10px);border-radius:4px}.startKicker{font:700 11px ui-monospace,monospace;letter-spacing:4px;color:#8baec8}.startTitle{margin:7px 0;font-size:clamp(42px,8vw,82px);line-height:.9;letter-spacing:8px;color:#dff9ff;text-shadow:0 0 28px #44dfff77}.startSub{color:#69dfff;letter-spacing:3px;font-size:12px}.startGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:22px 0}.startCell{padding:10px;border:1px solid #315170;background:#07132199}.startCell b{display:block;color:#72e5ff;font-size:18px}.startCell span{font-size:9px;color:#8fa8c2;letter-spacing:1px}.startBtn{min-width:230px;padding:14px 22px;border:1px solid #67ddff;background:#062033;color:#dffaff;letter-spacing:3px;font-weight:800;box-shadow:0 0 25px #27cfff22}.startBtn:hover{background:#0a3047;box-shadow:0 0 35px #27cfff44}.startHint{margin-top:13px;color:#718ca4;font-size:10px;letter-spacing:1px}#missionPanel{position:absolute;z-index:4;left:20px;top:92px;width:250px;padding:13px;border-left:2px solid #54dfff;background:linear-gradient(90deg,#061522dd,#06152288,transparent);pointer-events:none}.panelLabel{font:700 9px ui-monospace,monospace;color:#62dcff;letter-spacing:2px}.panelMain{font-weight:800;margin-top:4px}.panelSmall{font-size:10px;color:#91a8bd;margin-top:4px}#bottomHUD{position:absolute;z-index:4;left:20px;right:20px;bottom:20px;display:flex;justify-content:space-between;align-items:end;pointer-events:none}.meter{width:210px;height:9px;border:1px solid #315170;background:#071321cc;padding:1px}.meter i{display:block;width:100%;height:100%;background:#42dfff;box-shadow:0 0 12px #42dfff}.weapon{padding:10px 14px;border:1px solid #315170;background:#061321dd;text-align:right}.weapon b{color:#72e5ff;font-size:17px}.weapon span{display:block;color:#8fa8c2;font-size:9px;letter-spacing:1px}@media(max-width:700px), (pointer:coarse){.startGrid{gap:5px}.startPanel{padding:20px}.startTitle{letter-spacing:4px}.startBtn{width:100%}#missionPanel{left:10px;top:125px;width:190px}.meter{width:145px}}</style>
 </head><body>
 <div id="boot"><div class="boot"><div class="logo">GALAKTOGON</div><div class="muted">FRONTIER PROTOCOL // 3D CINEMATIC BUILD</div><p id="msg">Initialisiere volumetrische Welt…</p><div class="bar"><i id="prog"></i></div></div></div>
-<div id="game" class="hidden"><canvas id="world"></canvas><div id="cross"></div><div id="startUI"><div class="startPanel"><div class="startKicker">GALAKTOGON // FRONTIER PROTOCOL</div><div class="startTitle">ASTERION</div><div class="startSub">PLANETARY FRONTIER // SEKTOR 07</div><div class="startGrid"><div class="startCell"><b>07</b><span>SEKTOR</span></div><div class="startCell"><b>100%</b><span>HÜLLE</span></div><div class="startCell"><b>500</b><span>GALACTIC CREDITS</span></div></div><button id="startBtn" class="startBtn">▶ MISSION STARTEN</button><div class="startHint">PC: WASD · MAUS · SHIFT · E &nbsp; // &nbsp; MOBILE: JOYSTICK · LOOK · AKTION</div></div></div><div id="missionPanel"><div class="panelLabel">AKTIVE MISSION</div><div class="panelMain">FRONTIER PROTOCOL</div><div class="panelSmall">Untersuche den Sektor und erreiche das Missions-Terminal.</div></div><div id="bottomHUD"><div><div class="panelLabel">SUIT INTEGRITY</div><div class="meter"><i id="hullBar"></i></div></div><div class="weapon"><b>STANDARD BLASTER</b><span>ENERGY 100 // READY</span></div></div>
+<div id="game" class="hidden"><canvas id="world"></canvas><div id="cross"></div><div id="startUI"><div class="startPanel"><div class="startKicker">GALAKTOGON // FRONTIER PROTOCOL</div><div class="startTitle">ASTERION</div><div class="startSub">PLANETARY FRONTIER // SEKTOR 07</div><div class="startGrid"><div class="startCell"><b>07</b><span>SEKTOR</span></div><div class="startCell"><b>100%</b><span>HÜLLE</span></div><div class="startCell"><b>500</b><span>GALACTIC CREDITS</span></div></div><button id="startBtn" class="startBtn">▶ MISSION STARTEN</button><div class="startHint">PC: WASD · MAUS · SHIFT · E &nbsp; // &nbsp; MOBILE: JOYSTICK · LOOK · AKTION</div></div></div><div id="missionPanel"><div class="panelLabel">AKTIVE MISSION</div><div class="panelMain" id="missionTitle">FRONTIER PROTOCOL</div><div class="panelSmall" id="missionText">Untersuche den Sektor und erreiche das Missions-Terminal.</div></div><div id="bottomHUD"><div><div class="panelLabel">SUIT INTEGRITY</div><div class="meter"><i id="hullBar"></i></div></div><div class="weapon"><b>STANDARD BLASTER</b><span>ENERGY 100 // READY</span></div></div>
 <div class="hud"><div class="brand">GALAKTOGON // FRONTIER</div><div class="stats"><span>LV <b id="lv">1</b></span><span>XP <b id="xp">0</b></span><span>GC <b id="gc">500</b></span><span>HÜLLE <b id="hull">100</b>%</span></div></div>
 <div id="hint">Desktop: WASD · Maus · Shift · E  |  Mobile: linker Stick · rechte Seite Kamera · E-Aktion</div>
-<div id="interact" class="hidden"><b id="interactTitle"></b><br><span id="interactText">E drücken</span></div><div id="message"></div><div id="touch"><div id="joy"><i></i></div><div id="touchLook"></div><button id="touchE">E</button></div></div>
+<div id="interact" class="hidden"><b id="interactTitle"></b><br><span id="interactText">E drücken</span></div><div id="message"></div><div id="touch"><div id="joy"><i></i></div><div id="touchLook"></div><button id="touchE">AKTION</button></div></div>
 <div id="diag"></div><script>
 const SUPABASE_URL="https://tkbopzdurmejcwawtswa.supabase.co",SUPABASE_KEY="sb_publishable_NaSGbCf_A8HrrPV6O9D0ig_0tiFPA6D",STORAGE_KEY="sb-tkbopzdurmejcwawtswa-auth-token";
 let cloudUser=null,cloudToken=null,cloudSaveChain=Promise.resolve();
@@ -110,12 +110,38 @@ const stride=9*4;
 gl.bindBuffer(gl.ARRAY_BUFFER,staticBuf);
 gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(staticVerts),gl.STATIC_DRAW);
 function bindWorldBuffer(b){gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,3,gl.FLOAT,false,stride,0);gl.enableVertexAttribArray(an);gl.vertexAttribPointer(an,3,gl.FLOAT,false,stride,12);gl.enableVertexAttribArray(ac);gl.vertexAttribPointer(ac,3,gl.FLOAT,false,stride,24)}
-function m4(){return new Float32Array(16)}function ident(a){a.set([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);return a}function mul(a,b){const o=m4();for(let c=0;c<4;c++)for(let r=0;r<4;r++)o[c*4+r]=a[r]*b[c*4]+a[4+r]*b[c*4+1]+a[8+r]*b[c*4+2]+a[12+r]*b[c*4+3];return o}function perspective(fovy,asp,n,f){const o=m4(),q=1/Math.tan(fovy/2);o[0]=q/asp;o[5]=q;o[10]=(f+n)/(n-f);o[11]=-1;o[14]=2*f*n/(n-f);return o}function look(eye,tar){const f=[tar[0]-eye[0],tar[1]-eye[1],tar[2]-eye[2]];let fl=Math.hypot(f[0],f[1],f[2])||1;f[0]/=fl;f[1]/=fl;f[2]/=fl;let s=[f[2],0,-f[0]];let sl=Math.hypot(s[0],s[1],s[2])||1;s[0]/=sl;s[1]/=sl;s[2]/=sl;const u=[s[1]*f[2]-s[2]*f[1],s[2]*f[0]-s[0]*f[2],s[0]*f[1]-s[1]*f[0]];const o=ident(m4());o[0]=s[0];o[1]=u[0];o[2]=-f[0];o[4]=s[1];o[5]=u[1];o[6]=-f[1];o[8]=s[2];o[9]=u[2];o[10]=-f[2];o[12]=-(s[0]*eye[0]+s[1]*eye[1]+s[2]*eye[2]);o[13]=-(u[0]*eye[0]+u[1]*eye[1]+u[2]*eye[2]);o[14]=f[0]*eye[0]+f[1]*eye[1]+f[2]*eye[2];o[15]=1;return o}
+function m4(){return new Float32Array(16)}function ident(a){a.set([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);return a}function mul(a,b){const o=m4();for(let c=0;c<4;c++)for(let r=0;r<4;r++)o[c*4+r]=a[r]*b[c*4]+a[4+r]*b[c*4+1]+a[8+r]*b[c*4+2]+a[12+r]*b[c*4+3];return o}function perspective(fovy,asp,n,f){const o=m4(),q=1/Math.tan(fovy/2);o[0]=q/asp;o[5]=q;o[10]=(f+n)/(n-f);o[11]=-1;o[14]=2*f*n/(n-f);return o}function look(eye,tar){
+  const f=[tar[0]-eye[0],tar[1]-eye[1],tar[2]-eye[2]];
+  let fl=Math.hypot(f[0],f[1],f[2])||1;
+  f[0]/=fl;f[1]/=fl;f[2]/=fl;
+  const up=[0,1,0];
+  let s=[
+    f[1]*up[2]-f[2]*up[1],
+    f[2]*up[0]-f[0]*up[2],
+    f[0]*up[1]-f[1]*up[0]
+  ];
+  let sl=Math.hypot(s[0],s[1],s[2])||1;
+  s[0]/=sl;s[1]/=sl;s[2]/=sl;
+  const u=[
+    s[1]*f[2]-s[2]*f[1],
+    s[2]*f[0]-s[0]*f[2],
+    s[0]*f[1]-s[1]*f[0]
+  ];
+  const o=ident(m4());
+  o[0]=s[0];o[1]=u[0];o[2]=-f[0];
+  o[4]=s[1];o[5]=u[1];o[6]=-f[1];
+  o[8]=s[2];o[9]=u[2];o[10]=-f[2];
+  o[12]=-(s[0]*eye[0]+s[1]*eye[1]+s[2]*eye[2]);
+  o[13]=-(u[0]*eye[0]+u[1]*eye[1]+u[2]*eye[2]);
+  o[14]=f[0]*eye[0]+f[1]*eye[1]+f[2]*eye[2];
+  o[15]=1;
+  return o
+}
 let W=innerWidth,H=innerHeight,dpr=Math.min(mobileMode?1.15:1.5,devicePixelRatio||1),px=0,pz=42,camYaw=0,camPitch=.10,last=performance.now(),near=null,mouse={x:0,y:0,down:false},keys={},camX=0,camY=5.2,camZ=31;
 function resize(){W=innerWidth;H=innerHeight;const maxRB=gl.getParameter(gl.MAX_RENDERBUFFER_SIZE)||4096;const scale=Math.min(dpr,maxRB/W,maxRB/H);canvas.width=Math.max(2,Math.floor(W*scale));canvas.height=Math.max(2,Math.floor(H*scale));gl.viewport(0,0,canvas.width,canvas.height)}canvas.addEventListener("webglcontextlost",e=>{e.preventDefault();fatal("WEBGL CONTEXT LOST");});addEventListener("resize",resize);resize();gl.clearColor(.002,.005,.012,1);gl.clearDepth(1);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LESS);gl.disable(gl.BLEND);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);const initGLErr=gl.getError();if(initGLErr!==gl.NO_ERROR)fatal("WebGL INIT ERROR: 0x"+initGLErr.toString(16));
 function blocked(x,z){if(x<-102||x>102||z<-102||z>102)return true;const r=.65;for(const b of buildings){if(x+r>b.x-b.w/2&&x-r<b.x+b.w/2&&z+r>b.z-b.d/2&&z-r<b.z+b.d/2)return true}for(const t of terminals){if(Math.hypot(x-t.x,z-t.z)<1.7)return true}return false}function move(dt){let x=0,z=0;if(keys.w||keys.arrowup)z-=1;if(keys.s||keys.arrowdown)z+=1;if(keys.a||keys.arrowleft)x-=1;if(keys.d||keys.arrowright)x+=1;if(!x&&!z)return;const l=Math.hypot(x,z);x/=l;z/=l;const ca=Math.cos(camYaw),sa=Math.sin(camYaw),speed=keys.shift?9:5;const dx=(x*ca-z*sa)*speed*dt,dz=(x*sa+z*ca)*speed*dt;if(!blocked(px+dx,pz))px+=dx;if(!blocked(px,pz+dz))pz+=dz}
 addEventListener("keydown",e=>{if(e.key==="F3"){const err=gl.getError();diag.textContent="GALAKTOGON DIAGNOSTIK\\nCanvas "+canvas.width+"x"+canvas.height+"\\nDPR "+dpr.toFixed(2)+"\\nMobile "+mobileMode+"\\nVertices "+Math.floor(staticVerts.length/9)+"\\nCamera "+camYaw.toFixed(3)+" / "+camPitch.toFixed(3)+"\\nGL ERROR 0x"+err.toString(16);diag.className="bad"}});addEventListener("keydown",e=>{const k=e.key.toLowerCase();keys[k]=true;if(k==="e"&&!e.repeat)interact();if(["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright","shift"," "].includes(k))e.preventDefault()});addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
-canvas.addEventListener("mousedown",e=>{mouse.down=true;mouse.x=e.clientX;mouse.y=e.clientY});addEventListener("mouseup",()=>mouse.down=false);addEventListener("mousemove",e=>{if(mouse.down){camYaw+=(e.clientX-mouse.x)*.005;camPitch=Math.max(-.05,Math.min(.55,camPitch+(e.clientY-mouse.y)*.002));mouse.x=e.clientX;mouse.y=e.clientY}});
+canvas.addEventListener("mousedown",e=>{mouse.down=true;mouse.x=e.clientX;mouse.y=e.clientY});addEventListener("mouseup",()=>mouse.down=false);addEventListener("mousemove",e=>{if(mouse.down){camYaw+=(e.clientX-mouse.x)*.005;camPitch=Math.max(-.35,Math.min(.55,camPitch-(e.clientY-mouse.y)*.002));mouse.x=e.clientX;mouse.y=e.clientY}});
 function bindCharacterBuffer(){gl.bindBuffer(gl.ARRAY_BUFFER,charBuf);const stride=9*4;gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,3,gl.FLOAT,false,stride,0);gl.enableVertexAttribArray(an);gl.vertexAttribPointer(an,3,gl.FLOAT,false,stride,12);gl.enableVertexAttribArray(ac);gl.vertexAttribPointer(ac,3,gl.FLOAT,false,stride,24)}
 let playerModel=null;
 async function loadPlayerModel(){
@@ -152,10 +178,12 @@ function missionText(){
   ][missionStep];
   $("missionTitle").textContent=m[0];$("missionText").textContent=m[1];
 }
-function beginMission(){missionActive=true;missionStep=Math.max(0,Math.min(4,Number(S.missionStep)||0));missionText();show(missionStep<4?"MISSION GESTARTET // BLAUER LEITSTRAHL AKTIV":"SEKTOR 07 // MISSION BEREITS ABGESCHLOSSEN");}
+function beginMission(){missionActive=true;missionStep=Math.max(0,Math.min(4,Number(S.missionStep)||0));interactionLock=performance.now()+1200;missionText();show(missionStep<4?"MISSION GESTARTET // BLAUER LEITSTRAHL AKTIV":"SEKTOR 07 // MISSION BEREITS ABGESCHLOSSEN");}
 function interact(){
   if(!missionActive||performance.now()<interactionLock)return;
-  near=findNear();if(!near)return;
+  const target=missionTarget();
+  near=findNear();
+  if(!target||!near||near!==target.kind){show("KEIN AKTIVES ZIEL IN REICHWEITE");return;}
   let accepted=false;
   if(missionStep===0&&near==="terminal"){missionStep=1;S.missionStep=missionStep;addXP(15);S.gc+=25;log("MISSION 01 // Terminal synchronisiert");show("MISSIONSDATEN EMPFANGEN // +15 XP / +25 GC");accepted=true}
   else if(missionStep===1&&near==="relay"){missionStep=2;S.missionStep=missionStep;addXP(20);log("MISSION 02 // Docking Relay aktiviert");show("DOCKING RELAY ONLINE // +20 XP");accepted=true}
@@ -275,6 +303,34 @@ let lookId=null,lastLX=0,lastLY=0;touchLook?.addEventListener("touchstart",e=>{e
 touchLook?.addEventListener("touchmove",e=>{e.preventDefault();const q=[...e.touches].find(x=>x.identifier===lookId);if(!q)return;camYaw+=(q.clientX-lastLX)*.006;camPitch=Math.max(-.25,Math.min(.48,camPitch+(q.clientY-lastLY)*.003));lastLX=q.clientX;lastLY=q.clientY;if(!Number.isFinite(camYaw))camYaw=0},{passive:false});
 touchLook?.addEventListener("touchend",e=>{e.preventDefault();lookId=null},{passive:false});
 touchE?.addEventListener("touchstart",e=>{e.preventDefault();interact()},{passive:false});touchE?.addEventListener("click",e=>{e.preventDefault();interact()});
+
+// Pointer-event fallback for iOS/Android and devices that expose touch through Pointer Events.
+if(window.PointerEvent){
+  const joyEl=$("joy"), lookEl=$("touchLook"), actionEl=$("touchE");
+  let pJoy=null,pLook=null,pLX=0,pLY=0;
+  function joyReset(){keys.w=keys.a=keys.s=keys.d=false;pJoy=null;const k=joyEl?.querySelector("i");if(k)k.style.transform="translate(0,0)"}
+  joyEl?.addEventListener("pointerdown",e=>{e.preventDefault();pJoy=e.pointerId;joyEl.setPointerCapture?.(e.pointerId);joyCx=e.clientX;joyCy=e.clientY},{passive:false});
+  joyEl?.addEventListener("pointermove",e=>{
+    if(e.pointerId!==pJoy)return;e.preventDefault();
+    const dx=e.clientX-joyCx,dy=e.clientY-joyCy,lim=34;
+    const ix=Math.max(-lim,Math.min(lim,dx)),iy=Math.max(-lim,Math.min(lim,dy));
+    const k=joyEl.querySelector("i");if(k)k.style.transform="translate("+ix+"px,"+iy+"px)";
+    keys.d=ix>12;keys.a=ix<-12;keys.s=iy>12;keys.w=iy<-12;
+  },{passive:false});
+  joyEl?.addEventListener("pointerup",joyReset);
+  joyEl?.addEventListener("pointercancel",joyReset);
+  lookEl?.addEventListener("pointerdown",e=>{e.preventDefault();pLook=e.pointerId;lookEl.setPointerCapture?.(e.pointerId);pLX=e.clientX;pLY=e.clientY},{passive:false});
+  lookEl?.addEventListener("pointermove",e=>{
+    if(e.pointerId!==pLook)return;e.preventDefault();
+    camYaw+=(e.clientX-pLX)*.006;
+    camPitch=Math.max(-.25,Math.min(.48,camPitch-(e.clientY-pLY)*.003));
+    pLX=e.clientX;pLY=e.clientY;
+    if(!Number.isFinite(camYaw))camYaw=0;
+  },{passive:false});
+  lookEl?.addEventListener("pointerup",()=>pLook=null);
+  lookEl?.addEventListener("pointercancel",()=>pLook=null);
+  actionEl?.addEventListener("pointerdown",e=>{e.preventDefault();interact()},{passive:false});
+}
 void loadPlayerModel();
-let p=0,t=setInterval(()=>{p=Math.min(100,p+10);$("prog").style.width=p+"%";$("msg").textContent=["Initialisiere volumetrische Welt…","Erzeuge Megacity…","Lade Beleuchtung…","Synchronisiere Pilot…","Aktiviere 3D-Renderer…","Bereit."][Math.min(5,Math.floor(p/20))];if(p>=100){clearInterval(t);stats();requestAnimationFrame(loop);setTimeout(()=>{cloudLoad().then(()=>stats()).catch(()=>{})},0)}} ,120);
+let p=0,t=setInterval(()=>{p=Math.min(100,p+10);$("prog").style.width=p+"%";$("msg").textContent=["Initialisiere volumetrische Welt…","Erzeuge Megacity…","Lade Beleuchtung…","Synchronisiere Pilot…","Aktiviere 3D-Renderer…","Bereit."][Math.min(5,Math.floor(p/20))];if(p>=100){clearInterval(t);stats();requestAnimationFrame(loop);setTimeout(()=>{cloudLoad().then(()=>{stats();missionStep=Number.isFinite(S.missionStep)?S.missionStep:0;missionText()}).catch(()=>{})},0)}} ,120);
 </script></body></html>
