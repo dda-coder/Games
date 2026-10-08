@@ -1,0 +1,1 @@
+{"name":"Asterion Megacity","type":"modular-pbr-ready","count":64,"style":"hard-surface sci-fi","materials":{"facade":{"roughness":0.42,"metallic":0.58},"glass":{"roughness":0.08,"metallic":0.25},"neon":{"emissive":[0.05,0.65,0.95]}}}
