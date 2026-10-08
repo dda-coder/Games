@@ -72,7 +72,7 @@ void main(){vec4 w=uM*vec4(aPos,1.0);vec4 v=uV*w;gl_Position=uP*v;vN=mat3(uM)*aN
 `;
 const fs=`
 precision mediump float;varying vec3 vN;varying vec3 vC;varying float vD;uniform vec3 uLight;uniform float uTime;
-void main(){float l=max(dot(normalize(vN),normalize(uLight)),0.0);float rim=pow(1.0-max(dot(normalize(vN),vec3(0.0,0.0,1.0)),0.0),3.0);float fog=clamp((vD-35.0)/125.0,0.0,1.0);vec3 glow=vec3(vC.r*.10,vC.g*.22,vC.b*.30);vec3 col=vC*(0.34+0.86*l)+glow+vec3(0.015,0.08,0.12)*rim;col=mix(col,vec3(0.008,0.015,0.03),fog);gl_FragColor=vec4(col,1.0);}
+void main(){float l=max(dot(normalize(vN),normalize(uLight)),0.0);float rim=pow(1.0-max(dot(normalize(vN),vec3(0.0,0.0,1.0)),0.0),3.0);float fog=clamp((vD-35.0)/125.0,0.0,1.0);vec3 h=normalize(uLight+vec3(0.0,0.15,1.0));float spec=pow(max(dot(normalize(vN),h),0.0),48.0);vec3 glow=vec3(vC.r*.08,vC.g*.18,vC.b*.26);vec3 col=vC*(0.30+0.95*l)+glow+vec3(spec*.55)+vec3(0.012,0.055,0.075)*rim;col=mix(col,vec3(0.006,0.012,0.022),fog);col=pow(max(col,0.0),vec3(.88));gl_FragColor=vec4(col,1.0);}
 `;
 function shader(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(x));return x}
 const prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error("WebGL PROGRAM LINK ERROR: "+gl.getProgramInfoLog(prog));gl.useProgram(prog);
@@ -103,7 +103,30 @@ function blocked(x,z){if(x<-102||x>102||z<-102||z>102)return true;const r=.65;fo
 addEventListener("keydown",e=>{keys[e.key.toLowerCase()]=true;if(e.key.toLowerCase()==="e")interact();if(["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright","shift"," "].includes(e.key.toLowerCase()))e.preventDefault()});addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
 canvas.addEventListener("mousedown",e=>{mouse.down=true;mouse.x=e.clientX});addEventListener("mouseup",()=>mouse.down=false);addEventListener("mousemove",e=>{if(mouse.down){camYaw+=(e.clientX-mouse.x)*.005;camPitch=Math.max(-.05,Math.min(.65,camPitch+(e.clientY-mouse.y)*.002));mouse.x=e.clientX}});
 function bindCharacterBuffer(){gl.bindBuffer(gl.ARRAY_BUFFER,charBuf);const stride=9*4;gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,3,gl.FLOAT,false,stride,0);gl.enableVertexAttribArray(an);gl.vertexAttribPointer(an,3,gl.FLOAT,false,stride,12);gl.enableVertexAttribArray(ac);gl.vertexAttribPointer(ac,3,gl.FLOAT,false,stride,24)}
-function drawCharacter(){charVerts.length=0;activeTarget=charVerts;ellipsoid(px,1.35,pz,.58,1.05,.40,[.055,.18,.25]);ellipsoid(px,2.45,pz,.44,.48,.40,[.42,.55,.62]);ellipsoid(px,2.48,pz-.32,.28,.18,.10,[.06,.48,.66]);ellipsoid(px-.62,1.55,pz,.25,.72,.27,[.07,.22,.30]);ellipsoid(px+.62,1.55,pz,.25,.72,.27,[.07,.22,.30]);ellipsoid(px-.66,.78,pz,.22,.27,.25,[.045,.08,.11]);ellipsoid(px+.66,.78,pz,.22,.27,.25,[.045,.08,.11]);ellipsoid(px-.30,.48,pz,.25,.55,.27,[.055,.09,.12]);ellipsoid(px+.30,.48,pz,.25,.55,.27,[.055,.09,.12]);ellipsoid(px,1.45,pz+.38,.48,.72,.16,[.025,.08,.11]);box(px,1.55,pz-.43,.10,.08,.22,[.10,.80,1]);box(px-.66,1.55,pz-.26,.08,.08,.25,[.10,.75,1]);box(px+.66,1.55,pz-.26,.08,.08,.25,[.10,.75,1]);gl.bindBuffer(gl.ARRAY_BUFFER,charBuf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(charVerts),gl.DYNAMIC_DRAW);bindCharacterBuffer();gl.uniformMatrix4fv(uM,false,ident(m4()));gl.drawArrays(gl.TRIANGLES,0,charVerts.length/9);activeTarget=verts}
+let playerModel=null;
+async function loadPlayerModel(){
+ try{
+  const r=await fetch("assets/frontier/player/player-model.json",{cache:"no-store"});
+  if(!r.ok)throw Error("PLAYER MODEL HTTP "+r.status);
+  playerModel=await r.json();
+  show("PLAYER ASSET // EXTERNES 3D-MODELL GELADEN");
+ }catch(e){console.warn("[GALAKTOGON] Player asset fallback:",e)}
+}
+function drawCharacter(){
+ charVerts.length=0;activeTarget=charVerts;
+ const parts=playerModel?.parts||[
+  {type:"ellipsoid",p:[0,1.35,0],s:[.58,1.05,.40],c:[.055,.18,.25]},
+  {type:"ellipsoid",p:[0,2.45,0],s:[.44,.48,.40],c:[.42,.55,.62]},
+  {type:"ellipsoid",p:[0,2.48,-.32],s:[.28,.18,.10],c:[.06,.48,.66]}
+ ];
+ for(const q of parts){
+  const p=q.p||[0,0,0],s=q.s||[1,1,1],c=q.c||[.1,.2,.3];
+  if(q.type==="box")box(px+p[0],p[1],pz+p[2],s[0],s[2],s[1],c);
+  else ellipsoid(px+p[0],p[1],pz+p[2],s[0],s[1],s[2],c);
+ }
+ gl.bindBuffer(gl.ARRAY_BUFFER,charBuf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(charVerts),gl.DYNAMIC_DRAW);bindCharacterBuffer();
+ gl.uniformMatrix4fv(uM,false,ident(m4()));gl.drawArrays(gl.TRIANGLES,0,charVerts.length/9);activeTarget=verts
+}
 function interact(){near=findNear();if(!near)return;if(near==="terminal"){addXP(15);S.gc+=25;log("MISSION // Terminal synchronisiert");show("MISSIONSDATEN EMPFANGEN // +15 XP / +25 GC")}else{addXP(10);show("FRONTIER // Sektorobjekt untersucht")}save()}
 function findNear(){const d=Math.hypot(px,pz);return d<8?"terminal":null}
 function stars(){gl.disable(gl.DEPTH_TEST);gl.clearColor(.002,.005,.012,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST)}
@@ -117,5 +140,6 @@ joy?.addEventListener("touchend",()=>{keys.w=keys.a=keys.s=keys.d=false},{passiv
 let lookId=null,lastLX=0;touchLook?.addEventListener("touchstart",e=>{const q=e.changedTouches[0];lookId=q.identifier;lastLX=q.clientX},{passive:true});
 touchLook?.addEventListener("touchmove",e=>{const q=[...e.touches].find(x=>x.identifier===lookId);if(!q)return;camYaw+=(q.clientX-lastLX)*.006;lastLX=q.clientX},{passive:true});
 touchLook?.addEventListener("touchend",()=>lookId=null,{passive:true});touchE?.addEventListener("click",()=>interact());
+void loadPlayerModel();
 let p=0,t=setInterval(()=>{p=Math.min(100,p+10);$("prog").style.width=p+"%";$("msg").textContent=["Initialisiere volumetrische Welt…","Erzeuge Megacity…","Lade Beleuchtung…","Synchronisiere Pilot…","Aktiviere 3D-Renderer…","Bereit."][Math.min(5,Math.floor(p/20))];if(p>=100){clearInterval(t);stats();requestAnimationFrame(loop);setTimeout(()=>{cloudLoad().then(()=>stats()).catch(()=>{})},0)}} ,120);
 </script></body></html>
