@@ -75,7 +75,7 @@ void main(){vec4 w=uM*vec4(aPos,1.0);vec4 v=uV*w;gl_Position=uP*v;vN=mat3(uM)*aN
 `;
 const fs=`
 precision mediump float;varying vec3 vN;varying vec3 vC;varying float vD;varying vec3 vW;
-uniform vec3 uLight;uniform vec3 uViewPos;
+uniform vec3 uLight;uniform vec3 uViewPos;uniform float uTime;
 void main(){
   vec3 N=normalize(vN);
   vec3 L=normalize(uLight);
@@ -90,7 +90,10 @@ void main(){
   vec3 lit=vC*(0.42+1.35*ndl)+vec3(spec*0.55,spec*0.85,spec);
   lit+=vC*rim;
   vec3 sky=vec3(0.015,0.055,0.10);
-  vec3 col=ambient+lit+sky*0.34;
+  float neonMask=smoothstep(0.36,0.72,max(vC.g,vC.b));
+  float pulse=0.72+0.28*sin(uTime*2.2+vW.x*0.31+vW.z*0.27);
+  col=ambient+lit+sky*0.34;
+  col+=vec3(0.005,0.035,0.055)*neonMask*pulse;
   float exposure=1.08;
   col=vec3(1.0)-exp(-col*exposure);
   col=mix(col,vec3(0.008,0.018,0.035),fog);
@@ -99,7 +102,7 @@ void main(){
 `;
 function shader(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(x));return x}
 const prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error("WebGL PROGRAM LINK ERROR: "+gl.getProgramInfoLog(prog));gl.useProgram(prog);
-const ap=gl.getAttribLocation(prog,"aPos"),an=gl.getAttribLocation(prog,"aNormal"),ac=gl.getAttribLocation(prog,"aColor"),uM=gl.getUniformLocation(prog,"uM"),uV=gl.getUniformLocation(prog,"uV"),uP=gl.getUniformLocation(prog,"uP"),uLight=gl.getUniformLocation(prog,"uLight"),uViewPos=gl.getUniformLocation(prog,"uViewPos");
+const ap=gl.getAttribLocation(prog,"aPos"),an=gl.getAttribLocation(prog,"aNormal"),ac=gl.getAttribLocation(prog,"aColor"),uM=gl.getUniformLocation(prog,"uM"),uV=gl.getUniformLocation(prog,"uV"),uP=gl.getUniformLocation(prog,"uP"),uLight=gl.getUniformLocation(prog,"uLight"),uViewPos=gl.getUniformLocation(prog,"uViewPos"),uTime=gl.getUniformLocation(prog,"uTime");
 const verts=[];const charVerts=[];let activeTarget=verts;window.__GALAKTOGON={renderCount:0,vertexCount:0,lastGlError:0,contextLost:false,canvasW:0,canvasH:0};const charBuf=gl.createBuffer();const objectiveBuf=gl.createBuffer();const buildings=[];const terminals=[];const traffic=[];function box(x,y,z,w,d,h,col){const p=[[[-1,-1,1],[0,0,1]],[[-1,1,1],[0,0,1]],[[1,1,1],[0,0,1]],[[1,-1,1],[0,0,1]],[[-1,-1,-1],[0,0,-1]],[[1,-1,-1],[0,0,-1]],[[1,1,-1],[0,0,-1]],[[-1,1,-1],[0,0,-1]]];const f=[[0,1,2,3],[5,6,7,4],[4,7,1,0],[3,2,6,5],[1,7,6,2],[4,0,3,5]];for(const q of f){const ids=q;for(const i of [ids[0],ids[1],ids[2],ids[0],ids[2],ids[3]]){const a=p[i][0],n=p[i][1];activeTarget.push(x+a[0]*w/2,y+a[1]*h/2,z+a[2]*d/2,n[0],n[1],n[2],col[0],col[1],col[2])}}}
 function ellipsoid(x,y,z,rx,ry,rz,col){const seg=14,rings=8;for(let j=0;j<rings;j++){const p1=-Math.PI/2+j*Math.PI/rings,p2=-Math.PI/2+(j+1)*Math.PI/rings;for(let i=0;i<seg;i++){const a1=i*2*Math.PI/seg,a2=(i+1)*2*Math.PI/seg,ps=[[p1,a1],[p2,a1],[p2,a2],[p1,a2]];for(const tri of [[0,1,2],[0,2,3]])for(const k of tri){const p=ps[k][0],a=ps[k][1],cp=Math.cos(p),sx=Math.sin(p),ca=Math.cos(a),sa=Math.sin(a);activeTarget.push(x+rx*cp*ca,y+ry*sx,z+rz*cp*sa,cp*ca,sx,cp*sa,col[0],col[1],col[2])}}}}
 function cylinder(x,y,z,r,h,col,segments=16){for(let i=0;i<segments;i++){const a=i*2*Math.PI/segments,b=(i+1)*2*Math.PI/segments,x1=x+Math.cos(a)*r,z1=z+Math.sin(a)*r,x2=x+Math.cos(b)*r,z2=z+Math.sin(b)*r,n1=[Math.cos(a),0,Math.sin(a)],n2=[Math.cos(b),0,Math.sin(b)];for(const q of [[x1,y-h/2,z1,n1],[x2,y-h/2,z2,n2],[x2,y+h/2,z2,n2],[x1,y-h/2,z1,n1],[x2,y+h/2,z2,n2],[x1,y+h/2,z1,n1]])activeTarget.push(q[0],q[1],q[2],q[3][0],q[3][1],q[3][2],col[0],col[1],col[2])}}
@@ -332,6 +335,7 @@ function render(){
 
   gl.useProgram(prog);
   gl.uniform3f(uLight,-.35,1.0,.55);
+  gl.uniform1f(uTime,performance.now()/1000);
 
   const orbit=8;
   const ex=camX,ez=camZ,ey=camY;
