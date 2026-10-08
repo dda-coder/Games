@@ -102,7 +102,7 @@ for(let i=0;i<(mobileMode?18:30);i++){const a=i*2.399963,r=78+(i%5)*4,x=Math.cos
 for(let i=0;i<10;i++){const a=i*Math.PI/5,r=61,x=Math.cos(a)*r,z=Math.sin(a)*r;box(x,24,z,22,.45,.35,[.025,.17,.22])}
 for(let i=0;i<7;i++){const x=-42+i*14,z=-62-(i%2)*7;box(x,24,z,7,2,.35,[.025,.12,.18]);box(x,24.6,z,2.8,.6,.25,[.06,.55,.72]);box(x,25.5,z-1.5,1.2,4,.18,[.08,.35,.48])}
 makeCity();
-const staticVerts=verts.slice();window.__GALAKTOGON.vertexCount=staticVerts.length/9;
+const staticVerts=verts.slice();let nanCount=0,finiteMin=[Infinity,Infinity,Infinity],finiteMax=[-Infinity,-Infinity,-Infinity];for(let i=0;i<staticVerts.length;i+=9){const x=staticVerts[i],y=staticVerts[i+1],z=staticVerts[i+2];if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(z))nanCount++;else{if(x<finiteMin[0])finiteMin[0]=x;if(y<finiteMin[1])finiteMin[1]=y;if(z<finiteMin[2])finiteMin[2]=z;if(x>finiteMax[0])finiteMax[0]=x;if(y>finiteMax[1])finiteMax[1]=y;if(z>finiteMax[2])finiteMax[2]=z}}window.__GALAKTOGON.vertexCount=staticVerts.length/9;window.__GALAKTOGON.staticStats={nanCount,min:finiteMin,max:finiteMax,head:Array.from(staticVerts.slice(0,54))};
 const staticBuf=gl.createBuffer();
 const trafficBuf=gl.createBuffer();
 const stride=9*4;
