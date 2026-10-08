@@ -157,7 +157,7 @@ function m4(){return new Float32Array(16)}function ident(a){a.set([1,0,0,0,0,1,0
 let W=innerWidth,H=innerHeight,dpr=Math.min(mobileMode?1.15:1.5,devicePixelRatio||1),px=0,pz=42;
 let camYaw=0,camPitch=.10,camYawTarget=0,camPitchTarget=.10;
 let last=performance.now(),near=null,mouse={x:0,y:0,down:false},keys={},joyAxisX=0,joyAxisY=0;
-let moveVX=0,moveVZ=0,firstPerson=false,camX=0,camY=5.2,camZ=31;
+let moveVX=0,moveVZ=0,firstPerson=false,cameraInitialized=false,camX=0,camY=4.8,camZ=50.5;
 function resize(){W=innerWidth;H=innerHeight;const maxRB=gl.getParameter(gl.MAX_RENDERBUFFER_SIZE)||4096;const scale=Math.min(dpr,maxRB/W,maxRB/H);canvas.width=Math.max(2,Math.floor(W*scale));canvas.height=Math.max(2,Math.floor(H*scale));gl.viewport(0,0,canvas.width,canvas.height)}canvas.addEventListener("webglcontextlost",e=>{e.preventDefault();fatal("WEBGL CONTEXT LOST");});addEventListener("resize",resize);resize();gl.clearColor(.002,.005,.012,1);gl.clearDepth(1);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LESS);gl.disable(gl.BLEND);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);const initGLErr=gl.getError();if(initGLErr!==gl.NO_ERROR)fatal("WebGL INIT ERROR: 0x"+initGLErr.toString(16));
 function blocked(x,z){if(x<-102||x>102||z<-102||z>102)return true;const r=.65;for(const b of buildings){if(x+r>b.x-b.w/2&&x-r<b.x+b.w/2&&z+r>b.z-b.d/2&&z-r<b.z+b.d/2)return true}for(const t of terminals){if(Math.hypot(x-t.x,z-t.z)<1.7)return true}return false}
 function move(dt){
@@ -205,7 +205,8 @@ function updateCamera(dt){
   }
   const eyeY=firstPerson?2.35:4.8;
   const follow=Math.min(1,dt*(firstPerson?18:11));
-  camX+=(eyeX-camX)*follow;camY+=(eyeY-camY)*follow;camZ+=(eyeZ-camZ)*follow;
+  if(!cameraInitialized){camX=eyeX;camY=eyeY;camZ=eyeZ;cameraInitialized=true}
+  else{camX+=(eyeX-camX)*follow;camY+=(eyeY-camY)*follow;camZ+=(eyeZ-camZ)*follow;}
 }
 addEventListener("keydown",e=>{if(e.key==="F3"){const err=gl.getError();diag.textContent="GALAKTOGON DIAGNOSTIK\\nCanvas "+canvas.width+"x"+canvas.height+"\\nDPR "+dpr.toFixed(2)+"\\nMobile "+mobileMode+"\\nVertices "+Math.floor(staticVerts.length/9)+"\\nCamera "+camYaw.toFixed(3)+" / "+camPitch.toFixed(3)+"\\nGL ERROR 0x"+err.toString(16);diag.className="bad"}});addEventListener("keydown",e=>{const k=e.key.toLowerCase();keys[k]=true;if(k==="e"&&!e.repeat)interact();if(["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright","shift"," "].includes(k))e.preventDefault()});addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
 canvas.addEventListener("mousedown",e=>{mouse.down=true;mouse.x=e.clientX;mouse.y=e.clientY;if(!mobileMode&&missionActive)canvas.requestPointerLock?.()});
@@ -322,16 +323,11 @@ function render(){
   if(!Number.isFinite(camYawTarget))camYawTarget=camYaw;
   if(!Number.isFinite(camPitchTarget))camPitchTarget=camPitch;
   camPitchTarget=Math.max(-.28,Math.min(.50,camPitchTarget));
-  updateCamera(dt);
   gl.enable(gl.DEPTH_TEST);
   gl.depthMask(true);
   gl.disable(gl.BLEND);
   gl.disable(gl.SCISSOR_TEST);
   if(canvas.width<2||canvas.height<2)return;
-
-  if(!Number.isFinite(camYaw))camYaw=0;
-  if(!Number.isFinite(camPitch))camPitch=.10;
-  camPitch=Math.max(-.25,Math.min(.48,camPitch));
 
   gl.useProgram(prog);
   gl.uniform3f(uLight,-.35,1.0,.55);
@@ -403,7 +399,7 @@ function render(){
   }
   activeTarget=verts;
 }
-let firstFrameReady=false;function loop(now){try{const dt=Math.min(.04,(now-last)/1000);last=now;if(!firstFrameReady){$("boot").classList.add("hidden");$("game").classList.remove("hidden");$("startUI").classList.remove("off");resize();firstFrameReady=true}move(dt);render();requestAnimationFrame(loop)}catch(e){fatal(e)}}
+let firstFrameReady=false;function loop(now){try{const dt=Math.min(.04,(now-last)/1000);last=now;if(!firstFrameReady){$("boot").classList.add("hidden");$("game").classList.remove("hidden");$("startUI").classList.remove("off");resize();firstFrameReady=true}move(dt);updateCamera(dt);render();requestAnimationFrame(loop)}catch(e){fatal(e)}}
 const joy=$("joy"),touchLook=$("touchLook"),touchE=$("touchE"),touchCam=$("touchCam");let joyId=null,joyCx=0,joyCy=0;
 if(mobileMode&&$("touch"))$("touch").setAttribute("aria-label","Mobile Steuerung aktiv");
 joy?.addEventListener("touchstart",e=>{e.preventDefault();const q=e.changedTouches[0];joyId=q.identifier;joyCx=q.clientX;joyCy=q.clientY},{passive:false});
