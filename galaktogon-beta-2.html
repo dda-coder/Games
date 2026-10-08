@@ -35,7 +35,7 @@ button:hover{border-color:var(--cyan)}
 #message.show{opacity:1;transform:translate(-50%,0)}
 #diag{position:fixed;left:12px;bottom:12px;z-index:9999;max-width:calc(100vw - 24px);max-height:40vh;overflow:auto;padding:12px 14px;background:rgba(3,8,16,.96);border:1px solid #ff4f72;color:#ffd4dc;font:12px/1.45 ui-monospace,monospace;box-shadow:0 0 28px #ff285044;display:none;white-space:pre-wrap}
 #diag.bad{display:block}
-#touch{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;display:none;position:absolute;inset:0;z-index:6;pointer-events:none;touch-action:none}
+#touch{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;display:none;position:absolute;inset:0;z-index:9;pointer-events:none;touch-action:none}
 #joy{position:absolute;left:22px;bottom:30px;width:112px;height:112px;border:1px solid #6be1ff88;border-radius:50%;background:#06132188;pointer-events:auto;touch-action:none}
 #joy i{position:absolute;width:38px;height:38px;left:36px;top:36px;border-radius:50%;background:#4bdcff66;border:1px solid #9eeeff}
 #touchLook{position:absolute;right:0;top:18%;width:55%;height:65%;pointer-events:auto;touch-action:none}
@@ -63,7 +63,7 @@ function save(){if(Number.isFinite(px)&&Number.isFinite(pz)){S.playerX=px;S.play
 function addXP(n){S.xp+=n;while(S.xp>=S.level*100){S.xp-=S.level*100;S.level++;show("RANGAUFSTIEG // LEVEL "+S.level)}save()}function show(x){$("message").textContent=x;$("message").classList.add("show");clearTimeout(show.t);show.t=setTimeout(()=>$("message").classList.remove("show"),2600)}
 function log(x){S.logs.unshift(new Date().toLocaleTimeString()+" // "+x);S.logs=S.logs.slice(0,40);save()}
 
-const mobileMode=matchMedia("(pointer:coarse)").matches||innerWidth<800;const canvas=$("world"),gl=canvas.getContext("webgl",{antialias:false,alpha:false,preserveDrawingBuffer:false,powerPreference:"high-performance"});
+const mobileMode=matchMedia("(pointer:coarse)").matches||innerWidth<800;document.documentElement.classList.toggle("mobile-device",mobileMode);const canvas=$("world"),gl=canvas.getContext("webgl",{antialias:false,alpha:false,preserveDrawingBuffer:false,powerPreference:"high-performance"});
 if(!gl){$("msg").textContent="WebGL wird von diesem Gerät nicht unterstützt.";throw Error("WebGL unavailable")}
 const vs=`
 attribute vec3 aPos;attribute vec3 aNormal;attribute vec3 aColor;
@@ -111,6 +111,7 @@ gl.bindBuffer(gl.ARRAY_BUFFER,staticBuf);
 gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(staticVerts),gl.STATIC_DRAW);
 function bindWorldBuffer(b){gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,3,gl.FLOAT,false,stride,0);gl.enableVertexAttribArray(an);gl.vertexAttribPointer(an,3,gl.FLOAT,false,stride,12);gl.enableVertexAttribArray(ac);gl.vertexAttribPointer(ac,3,gl.FLOAT,false,stride,24)}
 function m4(){return new Float32Array(16)}function ident(a){a.set([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);return a}function mul(a,b){const o=m4();for(let c=0;c<4;c++)for(let r=0;r<4;r++)o[c*4+r]=a[r]*b[c*4]+a[4+r]*b[c*4+1]+a[8+r]*b[c*4+2]+a[12+r]*b[c*4+3];return o}function perspective(fovy,asp,n,f){const o=m4(),q=1/Math.tan(fovy/2);o[0]=q/asp;o[5]=q;o[10]=(f+n)/(n-f);o[11]=-1;o[14]=2*f*n/(n-f);return o}function look(eye,tar){
+  // Explicit world-up vector prevents camera roll/inversion.
   const f=[tar[0]-eye[0],tar[1]-eye[1],tar[2]-eye[2]];
   let fl=Math.hypot(f[0],f[1],f[2])||1;
   f[0]/=fl;f[1]/=fl;f[2]/=fl;
@@ -168,17 +169,34 @@ function drawCharacter(){
  gl.uniformMatrix4fv(uM,false,ident(m4()));gl.drawArrays(gl.TRIANGLES,0,charVerts.length/9);activeTarget=verts
 }
 let missionActive=false,missionStep=Number.isFinite(S.missionStep)?S.missionStep:0,interactionLock=0;
-function missionText(){
-  const m=[
-    ["MISSION 01 // KONTAKT","Erreiche das Frontier-Terminal und synchronisiere die Missionsdaten."],
-    ["MISSION 02 // RELAIS","Folge dem Marker zum Docking-Relay bei Sektor 07-DELTA."],
-    ["MISSION 03 // SYSTEMCHECK","Aktiviere die Repair Bay und stelle die Anzugssysteme wieder her."],
-    ["MISSION 04 // EXTRACTION","Zurück zum Frontier-Terminal. Starte die Extraktion."],
-    ["MISSION COMPLETE","Sektor 07 gesichert. Neue Aufträge werden vorbereitet."]
-  ][missionStep];
-  $("missionTitle").textContent=m[0];$("missionText").textContent=m[1];
+const MISSION_DATA=[
+  ["MISSION 01 // KONTAKT","Erreiche das Frontier-Terminal und synchronisiere die Missionsdaten."],
+  ["MISSION 02 // RELAIS","Folge dem Marker zum Docking-Relay bei Sektor 07-DELTA."],
+  ["MISSION 03 // SYSTEMCHECK","Aktiviere die Repair Bay und stelle die Anzugssysteme wieder her."],
+  ["MISSION 04 // EXTRACTION","Zurück zum Frontier-Terminal. Starte die Extraktion."],
+  ["MISSION COMPLETE","Sektor 07 gesichert. Neue Aufträge werden vorbereitet."]
+];
+function normalizeMissionStep(value){
+  const n=Number(value);
+  return Number.isFinite(n)?Math.max(0,Math.min(4,Math.floor(n))):0;
 }
-function beginMission(){missionActive=true;missionStep=Math.max(0,Math.min(4,Number(S.missionStep)||0));interactionLock=performance.now()+1200;missionText();show(missionStep<4?"MISSION GESTARTET // BLAUER LEITSTRAHL AKTIV":"SEKTOR 07 // MISSION BEREITS ABGESCHLOSSEN");}
+function missionText(){
+  missionStep=normalizeMissionStep(missionStep);
+  S.missionStep=missionStep;
+  const m=MISSION_DATA[missionStep]||MISSION_DATA[0];
+  const title=$("missionTitle"),textEl=$("missionText");
+  if(!title||!textEl)throw Error("MISSION UI ELEMENTS MISSING");
+  title.textContent=m[0];
+  textEl.textContent=m[1];
+}
+function beginMission(){
+  missionActive=true;
+  missionStep=normalizeMissionStep(S.missionStep);
+  interactionLock=performance.now()+1200;
+  missionText();
+  save();
+  show(missionStep<4?"MISSION GESTARTET // BLAUER LEITSTRAHL AKTIV":"SEKTOR 07 // MISSION BEREITS ABGESCHLOSSEN");
+}
 function interact(){
   if(!missionActive||performance.now()<interactionLock)return;
   const target=missionTarget();
@@ -216,6 +234,12 @@ function stars(){gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.
 function render(){
   window.__GALAKTOGON.renderCount++;
   stars();
+  // Keep the camera upright even after malformed input or an old save.
+  if(!Number.isFinite(px))px=0;
+  if(!Number.isFinite(pz))pz=42;
+  if(!Number.isFinite(camYaw))camYaw=0;
+  if(!Number.isFinite(camPitch))camPitch=.10;
+  camPitch=Math.max(-.25,Math.min(.48,camPitch));
   gl.enable(gl.DEPTH_TEST);
   gl.depthMask(true);
   gl.disable(gl.BLEND);
@@ -223,8 +247,8 @@ function render(){
   if(canvas.width<2||canvas.height<2)return;
 
   if(!Number.isFinite(camYaw))camYaw=0;
-  if(!Number.isFinite(camPitch))camPitch=.12;
-  camPitch=Math.max(-.35,Math.min(.55,camPitch));
+  if(!Number.isFinite(camPitch))camPitch=.10;
+  camPitch=Math.max(-.25,Math.min(.48,camPitch));
 
   gl.useProgram(prog);
   gl.uniform3f(uLight,-.4,1,.6);
@@ -296,6 +320,7 @@ function render(){
 }
 let firstFrameReady=false;function loop(now){try{const dt=Math.min(.04,(now-last)/1000);last=now;if(!firstFrameReady){$("boot").classList.add("hidden");$("game").classList.remove("hidden");$("startUI").classList.remove("off");resize();firstFrameReady=true}move(dt);render();requestAnimationFrame(loop)}catch(e){fatal(e)}}
 const joy=$("joy"),touchLook=$("touchLook"),touchE=$("touchE");let joyId=null,joyCx=0,joyCy=0;
+if(mobileMode&&$("touch"))$("touch").setAttribute("aria-label","Mobile Steuerung aktiv");
 joy?.addEventListener("touchstart",e=>{e.preventDefault();const q=e.changedTouches[0];joyId=q.identifier;joyCx=q.clientX;joyCy=q.clientY},{passive:false});
 joy?.addEventListener("touchmove",e=>{e.preventDefault();const q=[...e.touches].find(x=>x.identifier===joyId);if(!q)return;const dx=q.clientX-joyCx,dy=q.clientY-joyCy;const lim=34,ix=Math.max(-lim,Math.min(lim,dx)),iy=Math.max(-lim,Math.min(lim,dy));const knob=joy.querySelector("i");if(knob)knob.style.transform="translate("+ix+"px,"+iy+"px)";keys.d=dx>16;keys.a=dx<-16;keys.s=dy>16;keys.w=dy<-16},{passive:false});
 joy?.addEventListener("touchend",e=>{e.preventDefault();keys.w=keys.a=keys.s=keys.d=false;joyId=null;const knob=joy.querySelector("i");if(knob)knob.style.transform="translate(0,0)"},{passive:false});joy?.addEventListener("touchcancel",e=>{e.preventDefault();keys.w=keys.a=keys.s=keys.d=false;joyId=null;const knob=joy.querySelector("i");if(knob)knob.style.transform="translate(0,0)"},{passive:false});
@@ -332,5 +357,5 @@ if(window.PointerEvent){
   actionEl?.addEventListener("pointerdown",e=>{e.preventDefault();interact()},{passive:false});
 }
 void loadPlayerModel();
-let p=0,t=setInterval(()=>{p=Math.min(100,p+10);$("prog").style.width=p+"%";$("msg").textContent=["Initialisiere volumetrische Welt…","Erzeuge Megacity…","Lade Beleuchtung…","Synchronisiere Pilot…","Aktiviere 3D-Renderer…","Bereit."][Math.min(5,Math.floor(p/20))];if(p>=100){clearInterval(t);stats();requestAnimationFrame(loop);setTimeout(()=>{cloudLoad().then(()=>{stats();missionStep=Number.isFinite(S.missionStep)?S.missionStep:0;missionText()}).catch(()=>{})},0)}} ,120);
+let p=0,t=setInterval(()=>{p=Math.min(100,p+10);$("prog").style.width=p+"%";$("msg").textContent=["Initialisiere volumetrische Welt…","Erzeuge Megacity…","Lade Beleuchtung…","Synchronisiere Pilot…","Aktiviere 3D-Renderer…","Bereit."][Math.min(5,Math.floor(p/20))];if(p>=100){clearInterval(t);stats();requestAnimationFrame(loop);setTimeout(()=>{cloudLoad().then(()=>{stats();missionStep=normalizeMissionStep(S.missionStep);missionText()}).catch(()=>{})},0)}} ,120);
 </script></body></html>
