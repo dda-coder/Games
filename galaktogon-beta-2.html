@@ -59,7 +59,7 @@ localStorage.removeItem("GALA_BETA2");
 const diag=document.getElementById("diag");function fatal(e){const m=e instanceof Error?(e.stack||e.message):String(e);diag.textContent="GALAKTOGON START-/RENDERFEHLER\\n"+m;diag.className="bad";$("msg").textContent="STARTFEHLER – Diagnose unten";console.error("[GALAKTOGON]",e)}window.addEventListener("error",e=>fatal(e.error||e.message));window.addEventListener("unhandledrejection",e=>fatal(e.reason||"Unhandled promise rejection"));
 const $=id=>document.getElementById(id);
 let S=JSON.parse(localStorage.getItem("GALA_BETA2_V2")||"null")||{name:"Nova",race:"Terraner",level:1,xp:0,gc:500,rep:0,hull:100,energy:100,hyper:100,sector:7,planet:"Asterion",inv:["Standard-Blaster","Medkit","Hyperzelle"],missions:[],logs:[],faction:"Neutral",kills:0};
-function save(){localStorage.setItem("GALA_BETA2_V2",JSON.stringify(S));stats();void cloudSave()}function stats(){$("lv").textContent=S.level;$("xp").textContent=S.xp;$("gc").textContent=S.gc;$("hull").textContent=Math.max(0,S.hull)}function startMission(){$("startUI").classList.add("off");show("FRONTIER PROTOCOL // MISSION AKTIV");canvas.requestPointerLock?.()}document.addEventListener("DOMContentLoaded",()=>document.getElementById("startBtn")?.addEventListener("click",startMission));
+function save(){localStorage.setItem("GALA_BETA2_V2",JSON.stringify(S));stats();void cloudSave()}function stats(){$("lv").textContent=S.level;$("xp").textContent=S.xp;$("gc").textContent=S.gc;$("hull").textContent=Math.max(0,S.hull)}function startMission(){$("startUI").classList.add("off");show("FRONTIER PROTOCOL // MISSION AKTIV");try{const r=canvas.requestPointerLock?.();if(r?.catch)r.catch(()=>{})}catch{}}document.addEventListener("DOMContentLoaded",()=>document.getElementById("startBtn")?.addEventListener("click",startMission));
 function addXP(n){S.xp+=n;while(S.xp>=S.level*100){S.xp-=S.level*100;S.level++;show("RANGAUFSTIEG // LEVEL "+S.level)}save()}function show(x){$("message").textContent=x;$("message").classList.add("show");clearTimeout(show.t);show.t=setTimeout(()=>$("message").classList.remove("show"),2600)}
 function log(x){S.logs.unshift(new Date().toLocaleTimeString()+" // "+x);S.logs=S.logs.slice(0,40);save()}
 
@@ -96,13 +96,19 @@ for(let i=0;i<30;i++){const a=i*2.399963,r=78+(i%5)*4,x=Math.cos(a)*r,z=Math.sin
 for(let i=0;i<10;i++){const a=i*Math.PI/5,r=61,x=Math.cos(a)*r,z=Math.sin(a)*r;box(x,24,z,22,.45,.35,[.025,.17,.22])}
 for(let i=0;i<7;i++){const x=-42+i*14,z=-62-(i%2)*7;box(x,24,z,7,2,.35,[.025,.12,.18]);box(x,24.6,z,2.8,.6,.25,[.06,.55,.72]);box(x,25.5,z-1.5,1.2,4,.18,[.08,.35,.48])}
 makeCity();
-const staticVerts=verts.slice();const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(verts),gl.STATIC_DRAW);const stride=9*4;gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,3,gl.FLOAT,false,stride,0);gl.enableVertexAttribArray(an);gl.vertexAttribPointer(an,3,gl.FLOAT,false,stride,12);gl.enableVertexAttribArray(ac);gl.vertexAttribPointer(ac,3,gl.FLOAT,false,stride,24);
+const staticVerts=verts.slice();
+const staticBuf=gl.createBuffer();
+const trafficBuf=gl.createBuffer();
+const stride=9*4;
+gl.bindBuffer(gl.ARRAY_BUFFER,staticBuf);
+gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(staticVerts),gl.STATIC_DRAW);
+function bindWorldBuffer(b){gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,3,gl.FLOAT,false,stride,0);gl.enableVertexAttribArray(an);gl.vertexAttribPointer(an,3,gl.FLOAT,false,stride,12);gl.enableVertexAttribArray(ac);gl.vertexAttribPointer(ac,3,gl.FLOAT,false,stride,24)}
 function m4(){return new Float32Array(16)}function ident(a){a.set([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);return a}function mul(a,b){const o=m4();for(let c=0;c<4;c++)for(let r=0;r<4;r++)o[c*4+r]=a[r]*b[c*4]+a[4+r]*b[c*4+1]+a[8+r]*b[c*4+2]+a[12+r]*b[c*4+3];return o}function perspective(fovy,asp,n,f){const o=m4(),q=1/Math.tan(fovy/2);o[0]=q/asp;o[5]=q;o[10]=(f+n)/(n-f);o[11]=-1;o[14]=2*f*n/(n-f);return o}function look(eye,tar){const f=[tar[0]-eye[0],tar[1]-eye[1],tar[2]-eye[2]];let fl=Math.hypot(f[0],f[1],f[2])||1;f[0]/=fl;f[1]/=fl;f[2]/=fl;let s=[f[2],0,-f[0]];let sl=Math.hypot(s[0],s[1],s[2])||1;s[0]/=sl;s[1]/=sl;s[2]/=sl;const u=[s[1]*f[2]-s[2]*f[1],s[2]*f[0]-s[0]*f[2],s[0]*f[1]-s[1]*f[0]];const o=ident(m4());o[0]=s[0];o[1]=u[0];o[2]=-f[0];o[4]=s[1];o[5]=u[1];o[6]=-f[1];o[8]=s[2];o[9]=u[2];o[10]=-f[2];o[12]=-(s[0]*eye[0]+s[1]*eye[1]+s[2]*eye[2]);o[13]=-(u[0]*eye[0]+u[1]*eye[1]+u[2]*eye[2]);o[14]=f[0]*eye[0]+f[1]*eye[1]+f[2]*eye[2];o[15]=1;return o}
-let W=innerWidth,H=innerHeight,dpr=Math.min(2,devicePixelRatio||1),px=0,pz=25,camYaw=0,camPitch=.12,last=performance.now(),near=null,mouse={x:0,down:false},keys={},camX=0,camY=5.2,camZ=31;
-function resize(){W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;gl.viewport(0,0,canvas.width,canvas.height)}addEventListener("resize",resize);resize();gl.clearColor(.002,.005,.012,1);gl.clearDepth(1);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LESS);gl.disable(gl.BLEND);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);const initGLErr=gl.getError();if(initGLErr!==gl.NO_ERROR)fatal("WebGL INIT ERROR: 0x"+initGLErr.toString(16));
+let W=innerWidth,H=innerHeight,dpr=Math.min(2,devicePixelRatio||1),px=0,pz=25,camYaw=0,camPitch=.12,last=performance.now(),near=null,mouse={x:0,y:0,down:false},keys={},camX=0,camY=5.2,camZ=31;
+function resize(){W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;gl.viewport(0,0,canvas.width,canvas.height)}canvas.addEventListener("webglcontextlost",e=>{e.preventDefault();fatal("WEBGL CONTEXT LOST");});addEventListener("resize",resize);resize();gl.clearColor(.002,.005,.012,1);gl.clearDepth(1);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LESS);gl.disable(gl.BLEND);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);const initGLErr=gl.getError();if(initGLErr!==gl.NO_ERROR)fatal("WebGL INIT ERROR: 0x"+initGLErr.toString(16));
 function blocked(x,z){if(x<-102||x>102||z<-102||z>102)return true;const r=.65;for(const b of buildings){if(x+r>b.x-b.w/2&&x-r<b.x+b.w/2&&z+r>b.z-b.d/2&&z-r<b.z+b.d/2)return true}for(const t of terminals){if(Math.hypot(x-t.x,z-t.z)<1.7)return true}return false}function move(dt){let x=0,z=0;if(keys.w||keys.arrowup)z-=1;if(keys.s||keys.arrowdown)z+=1;if(keys.a||keys.arrowleft)x-=1;if(keys.d||keys.arrowright)x+=1;if(!x&&!z)return;const l=Math.hypot(x,z);x/=l;z/=l;const ca=Math.cos(camYaw),sa=Math.sin(camYaw),speed=keys.shift?9:5;const dx=(x*ca-z*sa)*speed*dt,dz=(x*sa+z*ca)*speed*dt;if(!blocked(px+dx,pz))px+=dx;if(!blocked(px,pz+dz))pz+=dz}
 addEventListener("keydown",e=>{keys[e.key.toLowerCase()]=true;if(e.key.toLowerCase()==="e")interact();if(["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright","shift"," "].includes(e.key.toLowerCase()))e.preventDefault()});addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
-canvas.addEventListener("mousedown",e=>{mouse.down=true;mouse.x=e.clientX});addEventListener("mouseup",()=>mouse.down=false);addEventListener("mousemove",e=>{if(mouse.down){camYaw+=(e.clientX-mouse.x)*.005;camPitch=Math.max(-.05,Math.min(.65,camPitch+(e.clientY-mouse.y)*.002));mouse.x=e.clientX}});
+canvas.addEventListener("mousedown",e=>{mouse.down=true;mouse.x=e.clientX;mouse.y=e.clientY});addEventListener("mouseup",()=>mouse.down=false);addEventListener("mousemove",e=>{if(mouse.down){camYaw+=(e.clientX-mouse.x)*.005;camPitch=Math.max(-.05,Math.min(.55,camPitch+(e.clientY-mouse.y)*.002));mouse.x=e.clientX;mouse.y=e.clientY}});
 function bindCharacterBuffer(){gl.bindBuffer(gl.ARRAY_BUFFER,charBuf);const stride=9*4;gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,3,gl.FLOAT,false,stride,0);gl.enableVertexAttribArray(an);gl.vertexAttribPointer(an,3,gl.FLOAT,false,stride,12);gl.enableVertexAttribArray(ac);gl.vertexAttribPointer(ac,3,gl.FLOAT,false,stride,24)}
 let playerModel=null;
 async function loadPlayerModel(){
@@ -131,15 +137,72 @@ function drawCharacter(){
 function interact(){near=findNear();if(!near)return;if(near==="terminal"){addXP(15);S.gc+=25;log("MISSION // Terminal synchronisiert");show("MISSIONSDATEN EMPFANGEN // +15 XP / +25 GC")}else{addXP(10);show("FRONTIER // Sektorobjekt untersucht")}save()}
 function findNear(){const d=Math.hypot(px,pz);return d<8?"terminal":null}
 function stars(){gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.clearColor(.002,.005,.012,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT)}
-function render(){stars();gl.enable(gl.DEPTH_TEST);gl.depthMask(true);if(canvas.width<2||canvas.height<2)return;verts.length=staticVerts.length;for(let i=0;i<staticVerts.length;i++)verts[i]=staticVerts[i];activeTarget=verts;for(const v of traffic){const t=performance.now()/1000,a=v.ang+t*v.speed,x=Math.cos(a)*(35+(Math.sin(t*.3+v.phase)+1)*8),z=Math.sin(a)*(35+(Math.sin(t*.3+v.phase)+1)*8);box(x,v.height,z,1.8,3.8,.35,[.06,.25,.34]);box(x,v.height+.22,z,.5,2.8,.08,[.12,.75,1]);}gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(verts),gl.DYNAMIC_DRAW);gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,3,gl.FLOAT,false,36,0);gl.enableVertexAttribArray(an);gl.vertexAttribPointer(an,3,gl.FLOAT,false,36,12);gl.enableVertexAttribArray(ac);gl.vertexAttribPointer(ac,3,gl.FLOAT,false,36,24);
-gl.useProgram(prog);gl.uniform3f(uLight,-.4,1,.6);const orbit=8,ex=px+Math.sin(camYaw)*orbit,ez=pz+Math.cos(camYaw)*orbit,ey=4.8;const targetY=1.15+camPitch*2.2;gl.uniformMatrix4fv(uV,false,look([ex,ey,ez],[px,targetY,pz]));gl.uniformMatrix4fv(uP,false,perspective(.95,W/H,.05,300));const M=ident(m4());gl.uniformMatrix4fv(uM,false,M);gl.drawArrays(gl.TRIANGLES,0,verts.length/9);drawCharacter();near=findNear();$("interact").classList.toggle("hidden",!near);if(near){$("interactTitle").textContent="Missions-Terminal";$("interactText").textContent="E drücken, um zu interagieren"}}
+function render(){
+  stars();
+  gl.enable(gl.DEPTH_TEST);
+  gl.depthMask(true);
+  gl.disable(gl.BLEND);
+  gl.disable(gl.SCISSOR_TEST);
+  if(canvas.width<2||canvas.height<2)return;
+
+  if(!Number.isFinite(camYaw))camYaw=0;
+  if(!Number.isFinite(camPitch))camPitch=.12;
+  camPitch=Math.max(-.35,Math.min(.55,camPitch));
+
+  gl.useProgram(prog);
+  gl.uniform3f(uLight,-.4,1,.6);
+
+  const orbit=8;
+  const ex=px+Math.sin(camYaw)*orbit;
+  const ez=pz+Math.cos(camYaw)*orbit;
+  const ey=4.8;
+  const targetY=1.15+camPitch*2.2;
+  gl.uniformMatrix4fv(uV,false,look([ex,ey,ez],[px,targetY,pz]));
+  gl.uniformMatrix4fv(uP,false,perspective(.95,W/H,.05,300));
+  gl.uniformMatrix4fv(uM,false,ident(m4()));
+
+  bindWorldBuffer(staticBuf);
+  gl.drawArrays(gl.TRIANGLES,0,staticVerts.length/9);
+
+  const trafficVerts=[];
+  activeTarget=trafficVerts;
+  const nowSec=performance.now()/1000;
+  for(const v of traffic){
+    const a=v.ang+nowSec*v.speed;
+    const x=Math.cos(a)*(35+(Math.sin(nowSec*.3+v.phase)+1)*8);
+    const z=Math.sin(a)*(35+(Math.sin(nowSec*.3+v.phase)+1)*8);
+    box(x,v.height,z,1.8,3.8,.35,[.06,.25,.34]);
+    box(x,v.height+.22,z,.5,2.8,.08,[.12,.75,1]);
+  }
+  if(trafficVerts.length){
+    gl.bindBuffer(gl.ARRAY_BUFFER,trafficBuf);
+    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(trafficVerts),gl.DYNAMIC_DRAW);
+    bindWorldBuffer(trafficBuf);
+    gl.drawArrays(gl.TRIANGLES,0,trafficVerts.length/9);
+  }
+
+  drawCharacter();
+  near=findNear();
+  $("interact").classList.toggle("hidden",!near);
+  if(near){
+    $("interactTitle").textContent="Missions-Terminal";
+    $("interactText").textContent="E drücken, um zu interagieren"
+  }
+
+  const e=gl.getError();
+  if(e!==gl.NO_ERROR){
+    diag.textContent="GALAKTOGON WEBGL STATUS\n0x"+e.toString(16)+"\nCAM "+camYaw.toFixed(2)+" / "+camPitch.toFixed(2);
+    diag.className="bad"
+  }
+  activeTarget=verts;
+}
 let firstFrameReady=false;function loop(now){try{const dt=Math.min(.04,(now-last)/1000);last=now;move(dt);render();if(!firstFrameReady){firstFrameReady=true;resize();$("boot").classList.add("hidden");$("game").classList.remove("hidden");$("startUI").classList.remove("off")}requestAnimationFrame(loop)}catch(e){fatal(e)}}
 const joy=$("joy"),touchLook=$("touchLook"),touchE=$("touchE");let joyId=null,joyCx=0,joyCy=0;
 joy?.addEventListener("touchstart",e=>{const q=e.changedTouches[0];joyId=q.identifier;joyCx=q.clientX;joyCy=q.clientY},{passive:true});
 joy?.addEventListener("touchmove",e=>{const q=[...e.touches].find(x=>x.identifier===joyId);if(!q)return;const dx=q.clientX-joyCx,dy=q.clientY-joyCy;keys.d=dx>18;keys.a=dx<-18;keys.s=dy>18;keys.w=dy<-18},{passive:true});
 joy?.addEventListener("touchend",()=>{keys.w=keys.a=keys.s=keys.d=false},{passive:true});
 let lookId=null,lastLX=0;touchLook?.addEventListener("touchstart",e=>{const q=e.changedTouches[0];lookId=q.identifier;lastLX=q.clientX},{passive:true});
-touchLook?.addEventListener("touchmove",e=>{const q=[...e.touches].find(x=>x.identifier===lookId);if(!q)return;camYaw+=(q.clientX-lastLX)*.006;lastLX=q.clientX},{passive:true});
+touchLook?.addEventListener("touchmove",e=>{const q=[...e.touches].find(x=>x.identifier===lookId);if(!q)return;camYaw+=(q.clientX-lastLX)*.006;lastLX=q.clientX;if(!Number.isFinite(camYaw))camYaw=0},{passive:true});
 touchLook?.addEventListener("touchend",()=>lookId=null,{passive:true});touchE?.addEventListener("click",()=>interact());
 void loadPlayerModel();
 let p=0,t=setInterval(()=>{p=Math.min(100,p+10);$("prog").style.width=p+"%";$("msg").textContent=["Initialisiere volumetrische Welt…","Erzeuge Megacity…","Lade Beleuchtung…","Synchronisiere Pilot…","Aktiviere 3D-Renderer…","Bereit."][Math.min(5,Math.floor(p/20))];if(p>=100){clearInterval(t);stats();requestAnimationFrame(loop);setTimeout(()=>{cloudLoad().then(()=>stats()).catch(()=>{})},0)}} ,120);
