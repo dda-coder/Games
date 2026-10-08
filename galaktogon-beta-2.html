@@ -77,7 +77,7 @@ void main(){float l=max(dot(normalize(vN),normalize(uLight)),0.0);float rim=pow(
 function shader(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(x));return x}
 const prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error("WebGL PROGRAM LINK ERROR: "+gl.getProgramInfoLog(prog));gl.useProgram(prog);
 const ap=gl.getAttribLocation(prog,"aPos"),an=gl.getAttribLocation(prog,"aNormal"),ac=gl.getAttribLocation(prog,"aColor"),uM=gl.getUniformLocation(prog,"uM"),uV=gl.getUniformLocation(prog,"uV"),uP=gl.getUniformLocation(prog,"uP"),uLight=gl.getUniformLocation(prog,"uLight");
-const verts=[];const charVerts=[];let activeTarget=verts;const charBuf=gl.createBuffer();const buildings=[];const terminals=[];const traffic=[];function box(x,y,z,w,d,h,col){const p=[[[-1,-1,1],[0,0,1]],[[-1,1,1],[0,0,1]],[[1,1,1],[0,0,1]],[[1,-1,1],[0,0,1]],[[-1,-1,-1],[0,0,-1]],[[1,-1,-1],[0,0,-1]],[[1,1,-1],[0,0,-1]],[[-1,1,-1],[0,0,-1]]];const f=[[0,1,2,3],[5,6,7,4],[4,7,1,0],[3,2,6,5],[1,7,6,2],[4,0,3,5]];for(const q of f){const ids=q;for(const i of [ids[0],ids[1],ids[2],ids[0],ids[2],ids[3]]){const a=p[i][0],n=p[i][1];activeTarget.push(x+a[0]*w/2,y+a[1]*h/2,z+a[2]*d/2,n[0],n[1],n[2],col[0],col[1],col[2])}}}
+const verts=[];const charVerts=[];let activeTarget=verts;window.__GALAKTOGON={renderCount:0,vertexCount:0,lastGlError:0,contextLost:false,canvasW:0,canvasH:0};const charBuf=gl.createBuffer();const buildings=[];const terminals=[];const traffic=[];function box(x,y,z,w,d,h,col){const p=[[[-1,-1,1],[0,0,1]],[[-1,1,1],[0,0,1]],[[1,1,1],[0,0,1]],[[1,-1,1],[0,0,1]],[[-1,-1,-1],[0,0,-1]],[[1,-1,-1],[0,0,-1]],[[1,1,-1],[0,0,-1]],[[-1,1,-1],[0,0,-1]]];const f=[[0,1,2,3],[5,6,7,4],[4,7,1,0],[3,2,6,5],[1,7,6,2],[4,0,3,5]];for(const q of f){const ids=q;for(const i of [ids[0],ids[1],ids[2],ids[0],ids[2],ids[3]]){const a=p[i][0],n=p[i][1];activeTarget.push(x+a[0]*w/2,y+a[1]*h/2,z+a[2]*d/2,n[0],n[1],n[2],col[0],col[1],col[2])}}}
 function ellipsoid(x,y,z,rx,ry,rz,col){const seg=14,rings=8;for(let j=0;j<rings;j++){const p1=-Math.PI/2+j*Math.PI/rings,p2=-Math.PI/2+(j+1)*Math.PI/rings;for(let i=0;i<seg;i++){const a1=i*2*Math.PI/seg,a2=(i+1)*2*Math.PI/seg,ps=[[p1,a1],[p2,a1],[p2,a2],[p1,a2]];for(const tri of [[0,1,2],[0,2,3]])for(const k of tri){const p=ps[k][0],a=ps[k][1],cp=Math.cos(p),sx=Math.sin(p),ca=Math.cos(a),sa=Math.sin(a);activeTarget.push(x+rx*cp*ca,y+ry*sx,z+rz*cp*sa,cp*ca,sx,cp*sa,col[0],col[1],col[2])}}}}
 function cylinder(x,y,z,r,h,col,segments=16){for(let i=0;i<segments;i++){const a=i*2*Math.PI/segments,b=(i+1)*2*Math.PI/segments,x1=x+Math.cos(a)*r,z1=z+Math.sin(a)*r,x2=x+Math.cos(b)*r,z2=z+Math.sin(b)*r,n1=[Math.cos(a),0,Math.sin(a)],n2=[Math.cos(b),0,Math.sin(b)];for(const q of [[x1,y-h/2,z1,n1],[x2,y-h/2,z2,n2],[x2,y+h/2,z2,n2],[x1,y-h/2,z1,n1],[x2,y+h/2,z2,n2],[x1,y+h/2,z1,n1]])activeTarget.push(q[0],q[1],q[2],q[3][0],q[3][1],q[3][2],col[0],col[1],col[2])}}
 function ring(cx,cy,cz,R,r,col){const major=24,minor=6;for(let i=0;i<major;i++)for(let j=0;j<minor;j++){const a=i*2*Math.PI/major,b=(i+1)*2*Math.PI/major,p=j*2*Math.PI/minor,q=(j+1)*2*Math.PI/minor,pts=[[a,p],[b,p],[b,q],[a,q]];for(const tri of [[0,1,2],[0,2,3]])for(const k of tri){const A=pts[k][0],B=pts[k][1],ca=Math.cos(A),sa=Math.sin(A),cp=Math.cos(B),sp=Math.sin(B),rr=R+r*cp;activeTarget.push(cx+rr*ca,cy+r*sp,cz+rr*sa,cp*ca,sp,cp*sa,col[0],col[1],col[2])}}}
@@ -96,7 +96,7 @@ for(let i=0;i<(mobileMode?18:30);i++){const a=i*2.399963,r=78+(i%5)*4,x=Math.cos
 for(let i=0;i<10;i++){const a=i*Math.PI/5,r=61,x=Math.cos(a)*r,z=Math.sin(a)*r;box(x,24,z,22,.45,.35,[.025,.17,.22])}
 for(let i=0;i<7;i++){const x=-42+i*14,z=-62-(i%2)*7;box(x,24,z,7,2,.35,[.025,.12,.18]);box(x,24.6,z,2.8,.6,.25,[.06,.55,.72]);box(x,25.5,z-1.5,1.2,4,.18,[.08,.35,.48])}
 makeCity();
-const staticVerts=verts.slice();
+const staticVerts=verts.slice();window.__GALAKTOGON.vertexCount=staticVerts.length/9;
 const staticBuf=gl.createBuffer();
 const trafficBuf=gl.createBuffer();
 const stride=9*4;
@@ -138,6 +138,7 @@ function interact(){near=findNear();if(!near)return;if(near==="terminal"){addXP(
 function findNear(){let best=null,bd=8;for(const t of terminals){const d=Math.hypot(px-t.x,pz-t.z);if(d<bd){bd=d;best=t.kind||"terminal"}}return best}
 function stars(){gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.clearColor(.002,.005,.012,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT)}
 function render(){
+  window.__GALAKTOGON.renderCount++;
   stars();
   gl.enable(gl.DEPTH_TEST);
   gl.depthMask(true);
@@ -189,14 +190,14 @@ function render(){
     $("interactText").textContent="E drücken, um zu interagieren"
   }
 
-  const e=gl.getError();
+  const e=gl.getError();window.__GALAKTOGON.lastGlError=e;window.__GALAKTOGON.canvasW=canvas.width;window.__GALAKTOGON.canvasH=canvas.height;window.__GALAKTOGON.contextLost=gl.isContextLost();
   if(e!==gl.NO_ERROR){
     diag.textContent="GALAKTOGON WEBGL STATUS\n0x"+e.toString(16)+"\nCAM "+camYaw.toFixed(2)+" / "+camPitch.toFixed(2);
     diag.className="bad"
   }
   activeTarget=verts;
 }
-let firstFrameReady=false;function loop(now){try{const dt=Math.min(.04,(now-last)/1000);last=now;move(dt);render();if(!firstFrameReady){firstFrameReady=true;resize();$("boot").classList.add("hidden");$("game").classList.remove("hidden");$("startUI").classList.remove("off")}requestAnimationFrame(loop)}catch(e){fatal(e)}}
+let firstFrameReady=false;function loop(now){try{const dt=Math.min(.04,(now-last)/1000);last=now;if(!firstFrameReady){$("boot").classList.add("hidden");$("game").classList.remove("hidden");$("startUI").classList.remove("off");resize();firstFrameReady=true}move(dt);render();requestAnimationFrame(loop)}catch(e){fatal(e)}}
 const joy=$("joy"),touchLook=$("touchLook"),touchE=$("touchE");let joyId=null,joyCx=0,joyCy=0;
 joy?.addEventListener("touchstart",e=>{const q=e.changedTouches[0];joyId=q.identifier;joyCx=q.clientX;joyCy=q.clientY},{passive:true});
 joy?.addEventListener("touchmove",e=>{const q=[...e.touches].find(x=>x.identifier===joyId);if(!q)return;const dx=q.clientX-joyCx,dy=q.clientY-joyCy;keys.d=dx>18;keys.a=dx<-18;keys.s=dy>18;keys.w=dy<-18},{passive:true});
