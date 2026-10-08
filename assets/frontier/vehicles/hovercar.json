@@ -1,0 +1,1 @@
+{"name":"Asterion Hover Vehicle","type":"procedural-pbr-ready","variants":4,"dimensions":[2.2,0.9,4.2],"materials":{"body":{"roughness":0.28,"metallic":0.82},"glass":{"roughness":0.06,"metallic":0.2},"lights":{"emissive":[0.08,0.7,1]}}}
