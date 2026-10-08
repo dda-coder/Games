@@ -1,0 +1,1 @@
+{"name":"Asterion Terrain","type":"procedural-pbr-ready","material":{"base":[0.035,0.075,0.095],"roughness":0.78,"metallic":0.05},"modules":[{"type":"plateau","size":[190,190],"height":2},{"type":"roadGrid","spacing":15},{"type":"landingZone","size":[13,13]}]}
