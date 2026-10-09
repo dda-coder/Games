@@ -66,7 +66,7 @@ function save(){if(Number.isFinite(px)&&Number.isFinite(pz)){S.playerX=px;S.play
 function addXP(n){S.xp+=n;while(S.xp>=S.level*100){S.xp-=S.level*100;S.level++;show("RANGAUFSTIEG // LEVEL "+S.level)}save()}function show(x){$("message").textContent=x;$("message").classList.add("show");clearTimeout(show.t);show.t=setTimeout(()=>$("message").classList.remove("show"),2600)}
 function log(x){S.logs.unshift(new Date().toLocaleTimeString()+" // "+x);S.logs=S.logs.slice(0,40);save()}
 
-const mobileMode=matchMedia("(pointer:coarse)").matches||innerWidth<800;document.documentElement.classList.toggle("mobile-device",mobileMode);const canvas=$("world"),gl=canvas.getContext("webgl",{antialias:false,alpha:false,preserveDrawingBuffer:false,powerPreference:"high-performance"});
+const mobileMode=matchMedia("(pointer:coarse)").matches||innerWidth<800;document.documentElement.classList.toggle("mobile-device",mobileMode);const canvas=$("world"),gl=canvas.getContext("webgl",{antialias:true,alpha:false,preserveDrawingBuffer:false,powerPreference:"high-performance"});
 if(!gl){$("msg").textContent="WebGL wird von diesem Gerät nicht unterstützt.";throw Error("WebGL unavailable")}
 const vs=`
 attribute vec3 aPos;attribute vec3 aNormal;attribute vec3 aColor;
@@ -86,22 +86,28 @@ void main(){
   float rim=pow(1.0-max(dot(N,V),0.0),3.0)*0.11;
   float hemi=0.5+0.5*N.y;
   float fog=clamp((vD-72.0)/135.0,0.0,1.0);
-  vec3 ambient=vC*(0.62+0.28*hemi);
-  vec3 lit=vC*(0.48+1.05*ndl)+vec3(spec*0.30,spec*0.34,spec*0.38);
+  vec3 ambient=vC*(0.30+0.30*hemi);
+  vec3 lit=vC*(0.90*ndl)+vec3(spec*0.24,spec*0.28,spec*0.32);
   lit+=vC*rim*0.55;
-  vec3 sky=vec3(0.16,0.23,0.29);
+  vec3 sky=vec3(0.22,0.34,0.46);
   float neonMask=smoothstep(0.42,0.78,max(vC.g,vC.b));
   float pulse=0.84+0.16*sin(uTime*2.2+vW.x*0.31+vW.z*0.27);
-  vec3 col=ambient+lit+sky*0.18;
+  vec3 col=ambient+lit+sky*0.12;
   col+=vec3(0.008,0.025,0.032)*neonMask*pulse;
-  float exposure=1.18;
+  float exposure=1.32;
   col=vec3(1.0)-exp(-col*exposure);
-  col=mix(col,vec3(0.10,0.15,0.18),fog);
+  col=mix(col,vec3(0.22,0.34,0.46),fog);
   gl_FragColor=vec4(col,1.0);
 }
 `;
 function shader(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(x));return x}
 const prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error("WebGL PROGRAM LINK ERROR: "+gl.getProgramInfoLog(prog));gl.useProgram(prog);
+// Dedicated atmospheric sky pass: gradient, sun glow and soft cloud bands.
+const skyVS=`attribute vec2 aSkyPos;varying vec2 vSkyUV;void main(){vSkyUV=aSkyPos*.5+.5;gl_Position=vec4(aSkyPos,1.0,1.0);}`;
+const skyFS=`precision mediump float;varying vec2 vSkyUV;uniform float uSkyTime;
+void main(){float y=vSkyUV.y;float h=smoothstep(.015,.92,y);vec3 c=mix(vec3(.78,.66,.50),vec3(.13,.32,.57),h);c=mix(c,vec3(.09,.22,.43),smoothstep(.58,1.0,y)*.48);float d=distance(vSkyUV,vec2(.77,.70));c+=vec3(1.0,.72,.40)*exp(-d*8.0)*.28;c=mix(c,vec3(1.0,.88,.65),1.0-smoothstep(.018,.032,d));float bands=sin(vSkyUV.x*21.0+sin(vSkyUV.y*12.0+uSkyTime*.012)*2.0)*sin(vSkyUV.y*34.0-vSkyUV.x*7.0);float clouds=smoothstep(.36,.82,bands)*smoothstep(.20,.47,y)*(1.0-smoothstep(.70,.91,y));c=mix(c,vec3(.76,.83,.88),clouds*.18);gl_FragColor=vec4(c,1.0);}`;
+const skyProg=gl.createProgram();gl.attachShader(skyProg,shader(gl.VERTEX_SHADER,skyVS));gl.attachShader(skyProg,shader(gl.FRAGMENT_SHADER,skyFS));gl.linkProgram(skyProg);if(!gl.getProgramParameter(skyProg,gl.LINK_STATUS))throw Error("SKY PROGRAM LINK ERROR: "+gl.getProgramInfoLog(skyProg));
+const skyPos=gl.getAttribLocation(skyProg,"aSkyPos"),uSkyTime=gl.getUniformLocation(skyProg,"uSkyTime"),skyBuf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,skyBuf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,1,1,-1,-1,1,1,-1,1]),gl.STATIC_DRAW);
 const ap=gl.getAttribLocation(prog,"aPos"),an=gl.getAttribLocation(prog,"aNormal"),ac=gl.getAttribLocation(prog,"aColor"),uM=gl.getUniformLocation(prog,"uM"),uV=gl.getUniformLocation(prog,"uV"),uP=gl.getUniformLocation(prog,"uP"),uLight=gl.getUniformLocation(prog,"uLight"),uViewPos=gl.getUniformLocation(prog,"uViewPos"),uTime=gl.getUniformLocation(prog,"uTime");
 const verts=[];const charVerts=[];let activeTarget=verts;window.__GALAKTOGON={renderCount:0,vertexCount:0,lastGlError:0,contextLost:false,canvasW:0,canvasH:0};const charBuf=gl.createBuffer();const objectiveBuf=gl.createBuffer();const buildings=[];const terminals=[];const traffic=[];function box(x,y,z,w,d,h,col){
   const p=[[-1,-1,1],[-1,1,1],[1,1,1],[1,-1,1],[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1]];
@@ -118,13 +124,13 @@ const verts=[];const charVerts=[];let activeTarget=verts;window.__GALAKTOGON={re
     }
   }
 }
-function ellipsoid(x,y,z,rx,ry,rz,col){const seg=14,rings=8;for(let j=0;j<rings;j++){const p1=-Math.PI/2+j*Math.PI/rings,p2=-Math.PI/2+(j+1)*Math.PI/rings;for(let i=0;i<seg;i++){const a1=i*2*Math.PI/seg,a2=(i+1)*2*Math.PI/seg,ps=[[p1,a1],[p2,a1],[p2,a2],[p1,a2]];for(const tri of [[0,1,2],[0,2,3]])for(const k of tri){const p=ps[k][0],a=ps[k][1],cp=Math.cos(p),sx=Math.sin(p),ca=Math.cos(a),sa=Math.sin(a);activeTarget.push(x+rx*cp*ca,y+ry*sx,z+rz*cp*sa,cp*ca,sx,cp*sa,col[0],col[1],col[2])}}}}
+function ellipsoid(x,y,z,rx,ry,rz,col){const seg=20,rings=12;for(let j=0;j<rings;j++){const p1=-Math.PI/2+j*Math.PI/rings,p2=-Math.PI/2+(j+1)*Math.PI/rings;for(let i=0;i<seg;i++){const a1=i*2*Math.PI/seg,a2=(i+1)*2*Math.PI/seg,ps=[[p1,a1],[p2,a1],[p2,a2],[p1,a2]];for(const tri of [[0,1,2],[0,2,3]])for(const k of tri){const p=ps[k][0],a=ps[k][1],cp=Math.cos(p),sx=Math.sin(p),ca=Math.cos(a),sa=Math.sin(a);activeTarget.push(x+rx*cp*ca,y+ry*sx,z+rz*cp*sa,(cp*ca)/rx,sx/ry,(cp*sa)/rz,col[0],col[1],col[2])}}}}
 function cylinder(x,y,z,r,h,col,segments=16){for(let i=0;i<segments;i++){const a=i*2*Math.PI/segments,b=(i+1)*2*Math.PI/segments,x1=x+Math.cos(a)*r,z1=z+Math.sin(a)*r,x2=x+Math.cos(b)*r,z2=z+Math.sin(b)*r,n1=[Math.cos(a),0,Math.sin(a)],n2=[Math.cos(b),0,Math.sin(b)];for(const q of [[x1,y-h/2,z1,n1],[x2,y-h/2,z2,n2],[x2,y+h/2,z2,n2],[x1,y-h/2,z1,n1],[x2,y+h/2,z2,n2],[x1,y+h/2,z1,n1]])activeTarget.push(q[0],q[1],q[2],q[3][0],q[3][1],q[3][2],col[0],col[1],col[2])}}
 function ring(cx,cy,cz,R,r,col){const major=24,minor=6;for(let i=0;i<major;i++)for(let j=0;j<minor;j++){const a=i*2*Math.PI/major,b=(i+1)*2*Math.PI/major,p=j*2*Math.PI/minor,q=(j+1)*2*Math.PI/minor,pts=[[a,p],[b,p],[b,q],[a,q]];for(const tri of [[0,1,2],[0,2,3]])for(const k of tri){const A=pts[k][0],B=pts[k][1],ca=Math.cos(A),sa=Math.sin(A),cp=Math.cos(B),sp=Math.sin(B),rr=R+r*cp;activeTarget.push(cx+rr*ca,cy+r*sp,cz+rr*sa,cp*ca,sp,cp*sa,col[0],col[1],col[2])}}}
 function makeCity(){
 box(0,-1,0,620,620,2,[.17,.21,.19]);
-for(let x=-300;x<=300;x+=30)box(x,.035,0,.10,600,.04,[.25,.29,.25]);
-for(let z=-300;z<=300;z+=30)box(0,.036,z,600,.10,.04,[.25,.29,.25]);
+for(let x=-300;x<=300;x+=30)box(x,.035,0,.06,600,.025,[.19,.23,.20]);
+for(let z=-300;z<=300;z+=30)box(0,.036,z,600,.06,.025,[.19,.23,.20]);
 // Wide asphalt avenues, shoulder markings and clearly readable terrain.
 box(0,.045,0,18,600,.06,[.105,.13,.13]);box(0,.047,0,600,18,.06,[.105,.13,.13]);
 for(let z=-285;z<=285;z+=12)box(0,.09,z,0.22,4,.035,[.72,.68,.48]);
@@ -201,7 +207,7 @@ function m4(){return new Float32Array(16)}function ident(a){a.set([1,0,0,0,0,1,0
   o[15]=1;
   return o
 }
-let W=innerWidth,H=innerHeight,dpr=Math.min(mobileMode?1.15:1.5,devicePixelRatio||1),px=0,pz=42;
+let W=innerWidth,H=innerHeight,dpr=Math.min(mobileMode?1.35:1.8,devicePixelRatio||1),px=0,pz=42;
 let camYaw=0,camPitch=.10,camYawTarget=0,camPitchTarget=.10;
 let last=performance.now(),near=null,mouse={x:0,y:0,down:false},keys={},joyAxisX=0,joyAxisY=0;
 let moveVX=0,moveVZ=0,firstPerson=false,cameraInitialized=false,camX=0,camY=4.8,camZ=50.5;
@@ -217,8 +223,8 @@ function move(dt){
   if(l>1){x/=l;z/=l}
   const ca=Math.cos(camYaw),sa=Math.sin(camYaw);
   const maxSpeed=keys.shift?9:5.5;
-  const desiredX=(x*ca-z*sa)*maxSpeed;
-  const desiredZ=(x*sa+z*ca)*maxSpeed;
+  const desiredX=(x*ca+z*sa)*maxSpeed;
+  const desiredZ=(-x*sa+z*ca)*maxSpeed;
   const response=Math.min(1,dt*(l>.05?14:10));
   moveVX+=(desiredX-moveVX)*response;
   moveVZ+=(desiredZ-moveVZ)*response;
@@ -238,7 +244,7 @@ function updateCamera(dt){
   camPitch=Math.max(-.62,Math.min(.78,camPitch));
   const dist=firstPerson?0.02:9.5;
   const eyeY=firstPerson?2.95:5.0+Math.sin(camPitch)*1.6;
-  const desiredX=px+Math.sin(camYaw)*dist*Math.cos(camPitch);
+  const desiredX=px-Math.sin(camYaw)*dist*Math.cos(camPitch);
   const desiredZ=pz+Math.cos(camYaw)*dist*Math.cos(camPitch);
   let eyeX=desiredX,eyeZ=desiredZ,clear=1;
   if(!firstPerson){
@@ -359,7 +365,7 @@ function drawObjectiveBeacon(){
   gl.drawArrays(gl.TRIANGLES,0,mv.length/9);
   activeTarget=verts
 }
-function stars(){gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.clearColor(.002,.005,.012,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT)}
+function stars(){gl.disable(gl.DEPTH_TEST);gl.depthMask(false);gl.disable(gl.BLEND);gl.disable(gl.CULL_FACE);gl.useProgram(skyProg);gl.bindBuffer(gl.ARRAY_BUFFER,skyBuf);gl.enableVertexAttribArray(skyPos);gl.vertexAttribPointer(skyPos,2,gl.FLOAT,false,0,0);gl.uniform1f(uSkyTime,performance.now()/1000);gl.drawArrays(gl.TRIANGLES,0,6);gl.depthMask(true);gl.clear(gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL)}
 function render(){
   window.__GALAKTOGON.renderCount++;
   stars();
@@ -385,7 +391,7 @@ function render(){
   const orbit=8;
   const ex=camX,ez=camZ,ey=camY;
   const lookDist=firstPerson?24:0;
-  const targetX=firstPerson?ex-Math.sin(camYaw)*lookDist*Math.cos(camPitch):px;
+  const targetX=firstPerson?ex+Math.sin(camYaw)*lookDist*Math.cos(camPitch):px;
   const targetZ=firstPerson?ez-Math.cos(camYaw)*lookDist*Math.cos(camPitch):pz;
   const targetY=firstPerson?ey+Math.sin(camPitch)*lookDist:1.8;
   gl.uniformMatrix4fv(uV,false,look([ex,ey,ez],[targetX,targetY,targetZ]));
