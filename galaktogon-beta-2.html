@@ -483,19 +483,7 @@ function render(){
     gl.drawArrays(gl.TRIANGLES,start,Math.min(worldChunk,worldCount-start));
   }
 
-  // Known-good local geometry probe: same program, same uniforms, same buffer layout.
-  // It keeps the world visibly grounded even if a mobile GPU rejects a large city draw.
-  activeTarget=verts;
-  const probeVerts=[];
-  const saveTarget=activeTarget;
-  activeTarget=probeVerts;
-  box(0,.48,25,12,.9,12,[.02,.38,.58]);
-  ring(0,1.02,25,4,.14,[.04,.72,.92]);
-  activeTarget=saveTarget;
-  gl.bindBuffer(gl.ARRAY_BUFFER,probeBuf);
-  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(probeVerts),gl.DYNAMIC_DRAW);
-  bindWorldBuffer(probeBuf);
-  gl.drawArrays(gl.TRIANGLES,0,probeVerts.length/9);
+  // No debug geometry is drawn into the production scene.
 
   const trafficVerts=[];
   activeTarget=trafficVerts;
