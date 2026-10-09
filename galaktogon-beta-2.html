@@ -223,8 +223,8 @@ function move(dt){
   if(l>1){x/=l;z/=l}
   const ca=Math.cos(camYaw),sa=Math.sin(camYaw);
   const maxSpeed=keys.shift?9:5.5;
-  const desiredX=(x*ca+z*sa)*maxSpeed;
-  const desiredZ=(-x*sa+z*ca)*maxSpeed;
+  const desiredX=(x*ca-z*sa)*maxSpeed;
+  const desiredZ=(x*sa+z*ca)*maxSpeed;
   const response=Math.min(1,dt*(l>.05?14:10));
   moveVX+=(desiredX-moveVX)*response;
   moveVZ+=(desiredZ-moveVZ)*response;
