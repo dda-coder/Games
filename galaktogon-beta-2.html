@@ -86,17 +86,17 @@ void main(){
   float rim=pow(1.0-max(dot(N,V),0.0),3.0)*0.11;
   float hemi=0.5+0.5*N.y;
   float fog=clamp((vD-72.0)/135.0,0.0,1.0);
-  vec3 ambient=vC*(0.32+0.20*hemi);
-  vec3 lit=vC*(0.42+1.35*ndl)+vec3(spec*0.55,spec*0.85,spec);
-  lit+=vC*rim;
-  vec3 sky=vec3(0.015,0.055,0.10);
-  float neonMask=smoothstep(0.36,0.72,max(vC.g,vC.b));
-  float pulse=0.72+0.28*sin(uTime*2.2+vW.x*0.31+vW.z*0.27);
-  vec3 col=ambient+lit+sky*0.34;
-  col+=vec3(0.005,0.035,0.055)*neonMask*pulse;
-  float exposure=1.08;
+  vec3 ambient=vC*(0.62+0.28*hemi);
+  vec3 lit=vC*(0.48+1.05*ndl)+vec3(spec*0.30,spec*0.34,spec*0.38);
+  lit+=vC*rim*0.55;
+  vec3 sky=vec3(0.16,0.23,0.29);
+  float neonMask=smoothstep(0.42,0.78,max(vC.g,vC.b));
+  float pulse=0.84+0.16*sin(uTime*2.2+vW.x*0.31+vW.z*0.27);
+  vec3 col=ambient+lit+sky*0.18;
+  col+=vec3(0.008,0.025,0.032)*neonMask*pulse;
+  float exposure=1.18;
   col=vec3(1.0)-exp(-col*exposure);
-  col=mix(col,vec3(0.008,0.018,0.035),fog);
+  col=mix(col,vec3(0.10,0.15,0.18),fog);
   gl_FragColor=vec4(col,1.0);
 }
 `;
@@ -107,10 +107,20 @@ const verts=[];const charVerts=[];let activeTarget=verts;window.__GALAKTOGON={re
 function ellipsoid(x,y,z,rx,ry,rz,col){const seg=14,rings=8;for(let j=0;j<rings;j++){const p1=-Math.PI/2+j*Math.PI/rings,p2=-Math.PI/2+(j+1)*Math.PI/rings;for(let i=0;i<seg;i++){const a1=i*2*Math.PI/seg,a2=(i+1)*2*Math.PI/seg,ps=[[p1,a1],[p2,a1],[p2,a2],[p1,a2]];for(const tri of [[0,1,2],[0,2,3]])for(const k of tri){const p=ps[k][0],a=ps[k][1],cp=Math.cos(p),sx=Math.sin(p),ca=Math.cos(a),sa=Math.sin(a);activeTarget.push(x+rx*cp*ca,y+ry*sx,z+rz*cp*sa,cp*ca,sx,cp*sa,col[0],col[1],col[2])}}}}
 function cylinder(x,y,z,r,h,col,segments=16){for(let i=0;i<segments;i++){const a=i*2*Math.PI/segments,b=(i+1)*2*Math.PI/segments,x1=x+Math.cos(a)*r,z1=z+Math.sin(a)*r,x2=x+Math.cos(b)*r,z2=z+Math.sin(b)*r,n1=[Math.cos(a),0,Math.sin(a)],n2=[Math.cos(b),0,Math.sin(b)];for(const q of [[x1,y-h/2,z1,n1],[x2,y-h/2,z2,n2],[x2,y+h/2,z2,n2],[x1,y-h/2,z1,n1],[x2,y+h/2,z2,n2],[x1,y+h/2,z1,n1]])activeTarget.push(q[0],q[1],q[2],q[3][0],q[3][1],q[3][2],col[0],col[1],col[2])}}
 function ring(cx,cy,cz,R,r,col){const major=24,minor=6;for(let i=0;i<major;i++)for(let j=0;j<minor;j++){const a=i*2*Math.PI/major,b=(i+1)*2*Math.PI/major,p=j*2*Math.PI/minor,q=(j+1)*2*Math.PI/minor,pts=[[a,p],[b,p],[b,q],[a,q]];for(const tri of [[0,1,2],[0,2,3]])for(const k of tri){const A=pts[k][0],B=pts[k][1],ca=Math.cos(A),sa=Math.sin(A),cp=Math.cos(B),sp=Math.sin(B),rr=R+r*cp;activeTarget.push(cx+rr*ca,cy+r*sp,cz+rr*sa,cp*ca,sp,cp*sa,col[0],col[1],col[2])}}}
-function makeCity(){box(0,-1,0,190,190,2,[.018,.035,.055]);for(let x=-90;x<=90;x+=15)box(x,.08,0,.16,190,.08,[.025,.11,.15]);for(let z=-90;z<=90;z+=15)box(0,.08,z,190,.16,.08,[.025,.11,.15]);
+function makeCity(){
+box(0,-1,0,620,620,2,[.17,.21,.19]);
+for(let x=-300;x<=300;x+=30)box(x,.035,0,.10,600,.04,[.25,.29,.25]);
+for(let z=-300;z<=300;z+=30)box(0,.036,z,600,.10,.04,[.25,.29,.25]);
+// Wide asphalt avenues, shoulder markings and clearly readable terrain.
+box(0,.045,0,18,600,.06,[.105,.13,.13]);box(0,.047,0,600,18,.06,[.105,.13,.13]);
+for(let z=-285;z<=285;z+=12)box(0,.09,z,0.22,4,.035,[.72,.68,.48]);
+for(let x=-285;x<=285;x+=12)box(x,.09,0,4,.22,.035,[.72,.68,.48]);
+for(let i=0;i<34;i++){const a=i*2.399963,r=165+(i%7)*17,x=Math.cos(a)*r,z=Math.sin(a)*r,rx=10+(i%4)*7,rz=9+(i%5)*6,ry=4+(i%6)*3;ellipsoid(x,ry*.20,z,rx,ry,rz,[.19+(i%3)*.035,.25+(i%4)*.025,.20+(i%2)*.025]);}
+for(let side=-1;side<=1;side+=2){box(side*302,5,0,3,610,10,[.30,.34,.30]);box(0,5,side*302,610,3,10,[.30,.34,.30]);}
+
 cylinder(0,10,0,9,20,[.035,.10,.15],20);cylinder(0,21,0,4.2,24,[.06,.18,.25],20);cylinder(0,34,0,2.2,26,[.08,.24,.32],20);ring(0,18,0,13,.65,[.04,.45,.65]);ring(0,29,0,19,.55,[.03,.34,.52]);ring(0,41,0,25,.45,[.05,.30,.48]);
 for(let i=0;i<4;i++){const a=i*Math.PI/2;box(Math.cos(a)*16,9,Math.sin(a)*16,7,7,18,[.035,.08,.13])}
-for(let i=0;i<(mobileMode?52:64);i++){const a=i*2.399963,r=24+(i%9)*5,x=Math.cos(a)*r,z=Math.sin(a)*r,w=3+(i%4)*1.8,d=3+(i%3)*1.8,h=9+(i%12)*2.7;buildings.push({x,z,w,d,h});box(x,h/2,z,w,d,h,[.025+(i%3)*.018,.055+(i%4)*.018,.09+(i%5)*.025]);for(let y=2.5;y<h;y+=3.4){box(x-w*.52,y,z,w*.035,d*.72,.28,[.04,.28,.38]);if(i%2===0)box(x+w*.52,y,z,w*.035,d*.72,.28,[.05,.34,.48])}if(i%5===0)ring(x,h*.72,z,w*1.05,.18,[.04,.34,.46])}
+for(let i=0;i<(mobileMode?52:64);i++){const a=i*2.399963,r=24+(i%9)*5,x=Math.cos(a)*r,z=Math.sin(a)*r,w=3+(i%4)*1.8,d=3+(i%3)*1.8,h=9+(i%12)*2.7;buildings.push({x,z,w,d});box(x,h/2,z,w,d,h,[.20+(i%3)*.045,.24+(i%4)*.035,.25+(i%5)*.035]);for(let y=2.5;y<h;y+=3.4){box(x-w*.52,y,z,w*.035,d*.72,.28,[.92,.57,.22]);if(i%2===0)box(x+w*.52,y,z,w*.035,d*.72,.28,[.30,.72,.82])}if(i%5===0)ring(x,h*.72,z,w*1.05,.18,[.92,.58,.24])}
 for(let i=0;i<5;i++){const a=-1.05+i*.52,rx=55,rz=38,x=Math.cos(a)*rx,z=Math.sin(a)*rz;box(x,16+i*3,z,3,18,2.2,[.035,.12,.17])}
 for(let i=0;i<7;i++){const x=-54+i*18;box(x,13,0,11,2,1,[.04,.16,.21]);box(x,13,18,11,2,1,[.04,.16,.21])}
 for(const q of [[-24,20],[24,20],[-36,-25],[38,-28]]){box(q[0],.9,q[1],13,13,.8,[.05,.09,.12]);box(q[0],1.35,q[1],9,.18,.12,[.05,.5,.62]);box(q[0],1.35,q[1],.18,9,.12,[.05,.5,.62])}box(0,.28,25,12,12,.5,[.02,.42,.62]);ring(0,.62,25,4,.16,[.05,.8,1]);
@@ -163,7 +173,7 @@ let camYaw=0,camPitch=.10,camYawTarget=0,camPitchTarget=.10;
 let last=performance.now(),near=null,mouse={x:0,y:0,down:false},keys={},joyAxisX=0,joyAxisY=0;
 let moveVX=0,moveVZ=0,firstPerson=false,cameraInitialized=false,camX=0,camY=4.8,camZ=50.5;
 function resize(){W=innerWidth;H=innerHeight;const maxRB=gl.getParameter(gl.MAX_RENDERBUFFER_SIZE)||4096;const scale=Math.min(dpr,maxRB/W,maxRB/H);canvas.width=Math.max(2,Math.floor(W*scale));canvas.height=Math.max(2,Math.floor(H*scale));gl.viewport(0,0,canvas.width,canvas.height)}canvas.addEventListener("webglcontextlost",e=>{e.preventDefault();fatal("WEBGL CONTEXT LOST");});addEventListener("resize",resize);resize();gl.clearColor(.002,.005,.012,1);gl.clearDepth(1);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LESS);gl.disable(gl.BLEND);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);const initGLErr=gl.getError();if(initGLErr!==gl.NO_ERROR)fatal("WebGL INIT ERROR: 0x"+initGLErr.toString(16));
-function blocked(x,z){if(x<-102||x>102||z<-102||z>102)return true;const r=.65;for(const b of buildings){if(x+r>b.x-b.w/2&&x-r<b.x+b.w/2&&z+r>b.z-b.d/2&&z-r<b.z+b.d/2)return true}for(const t of terminals){if(Math.hypot(x-t.x,z-t.z)<1.7)return true}return false}
+function blocked(x,z){if(x<-295||x>295||z<-295||z>295)return true;const r=.65;for(const b of buildings){if(x+r>b.x-b.w/2&&x-r<b.x+b.w/2&&z+r>b.z-b.d/2&&z-r<b.z+b.d/2)return true}for(const t of terminals){if(Math.hypot(x-t.x,z-t.z)<1.7)return true}return false}
 function move(dt){
   let x=joyAxisX,z=joyAxisY;
   if(Math.hypot(x,z)<.05){
@@ -183,44 +193,45 @@ function move(dt){
   const dx=moveVX*dt,dz=moveVZ*dt;
   if(!blocked(px+dx,pz))px+=dx;else moveVX=0;
   if(!blocked(px,pz+dz))pz+=dz;else moveVZ=0;
-  px=Math.max(-100,Math.min(100,px));pz=Math.max(-100,Math.min(100,pz));
+  px=Math.max(-294,Math.min(294,px));pz=Math.max(-294,Math.min(294,pz));
 }
 function dampAngle(current,target,rate,dt){
   let d=(target-current+Math.PI)%(Math.PI*2)-Math.PI;
   return current+d*Math.min(1,dt*rate);
 }
 function updateCamera(dt){
-  camYaw=dampAngle(camYaw,camYawTarget,12,dt);
-  camPitch+=(camPitchTarget-camPitch)*Math.min(1,dt*10);
-  camPitch=Math.max(-.28,Math.min(.50,camPitch));
-  const targetY=firstPerson?2.25:1.05+camPitch*1.8;
-  const dist=firstPerson?.18:8.5;
-  const desiredX=px+Math.sin(camYaw)*dist;
-  const desiredZ=pz+Math.cos(camYaw)*dist;
-  let eyeX=desiredX,eyeZ=desiredZ;
+  camYaw=dampAngle(camYaw,camYawTarget,16,dt);
+  camPitch+=(camPitchTarget-camPitch)*Math.min(1,dt*13);
+  camPitch=Math.max(-.62,Math.min(.78,camPitch));
+  const dist=firstPerson?0.02:9.5;
+  const eyeY=firstPerson?2.95:5.0+Math.sin(camPitch)*1.6;
+  const desiredX=px+Math.sin(camYaw)*dist*Math.cos(camPitch);
+  const desiredZ=pz+Math.cos(camYaw)*dist*Math.cos(camPitch);
+  let eyeX=desiredX,eyeZ=desiredZ,clear=1;
   if(!firstPerson){
-    let clear=1;
-    for(let i=1;i<=10;i++){
-      const t=i/10;
-      if(blocked(px+(desiredX-px)*t,pz+(desiredZ-pz)*t)){clear=(i-1)/10;break}
+    for(let i=1;i<=18;i++){
+      const t=i/18;
+      if(blocked(px+(desiredX-px)*t,pz+(desiredZ-pz)*t)){clear=(i-1)/18;break}
     }
-    eyeX=px+(desiredX-px)*Math.max(.18,clear);
-    eyeZ=pz+(desiredZ-pz)*Math.max(.18,clear);
+    eyeX=px+(desiredX-px)*Math.max(.08,clear);
+    eyeZ=pz+(desiredZ-pz)*Math.max(.08,clear);
   }
-  const eyeY=firstPerson?2.35:4.8;
-  const follow=Math.min(1,dt*(firstPerson?18:11));
+  const follow=Math.min(1,dt*(firstPerson?22:13));
   if(!cameraInitialized){camX=eyeX;camY=eyeY;camZ=eyeZ;cameraInitialized=true}
   else{camX+=(eyeX-camX)*follow;camY+=(eyeY-camY)*follow;camZ+=(eyeZ-camZ)*follow;}
 }
 addEventListener("keydown",e=>{if(e.key==="F3"){const err=gl.getError();diag.textContent="GALAKTOGON DIAGNOSTIK\\nCanvas "+canvas.width+"x"+canvas.height+"\\nDPR "+dpr.toFixed(2)+"\\nMobile "+mobileMode+"\\nVertices "+Math.floor(staticVerts.length/9)+"\\nCamera "+camYaw.toFixed(3)+" / "+camPitch.toFixed(3)+"\\nGL ERROR 0x"+err.toString(16);diag.className="bad"}});addEventListener("keydown",e=>{const k=e.key.toLowerCase();keys[k]=true;if(k==="e"&&!e.repeat)interact();if(["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright","shift"," "].includes(k))e.preventDefault()});addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
 canvas.addEventListener("mousedown",e=>{mouse.down=true;mouse.x=e.clientX;mouse.y=e.clientY;if(!mobileMode&&missionActive)canvas.requestPointerLock?.()});
+canvas.addEventListener("click",()=>{if(!mobileMode&&missionActive&&document.pointerLockElement!==canvas)canvas.requestPointerLock?.()});
+canvas.style.cursor="crosshair";
 addEventListener("mouseup",()=>mouse.down=false);
 addEventListener("mousemove",e=>{
-  const dx=document.pointerLockElement===canvas?e.movementX:e.clientX-mouse.x;
-  const dy=document.pointerLockElement===canvas?e.movementY:e.clientY-mouse.y;
-  if(document.pointerLockElement===canvas||mouse.down){
-    camYawTarget+=dx*.0027;
-    camPitchTarget=Math.max(-.28,Math.min(.50,camPitchTarget-dy*.0019));
+  const locked=document.pointerLockElement===canvas;
+  const dx=locked?e.movementX:e.clientX-mouse.x;
+  const dy=locked?e.movementY:e.clientY-mouse.y;
+  if(locked||mouse.down){
+    camYawTarget+=dx*.0040;
+    camPitchTarget=Math.max(-.62,Math.min(.78,camPitchTarget-dy*.0028));
   }
   mouse.x=e.clientX;mouse.y=e.clientY;
 });
@@ -324,10 +335,10 @@ function render(){
   if(!Number.isFinite(pz))pz=42;
   if(!Number.isFinite(camYaw))camYaw=0;
   if(!Number.isFinite(camPitch))camPitch=.10;
-  camPitch=Math.max(-.28,Math.min(.50,camPitch));
+  camPitch=Math.max(-.62,Math.min(.78,camPitch));
   if(!Number.isFinite(camYawTarget))camYawTarget=camYaw;
   if(!Number.isFinite(camPitchTarget))camPitchTarget=camPitch;
-  camPitchTarget=Math.max(-.28,Math.min(.50,camPitchTarget));
+  camPitchTarget=Math.max(-.62,Math.min(.78,camPitchTarget));
   gl.enable(gl.DEPTH_TEST);
   gl.depthMask(true);
   gl.disable(gl.BLEND);
@@ -340,10 +351,10 @@ function render(){
 
   const orbit=8;
   const ex=camX,ez=camZ,ey=camY;
-  const lookDist=firstPerson?12:6;
-  const targetX=ex-Math.sin(camYaw)*lookDist*Math.cos(camPitch);
-  const targetZ=ez-Math.cos(camYaw)*lookDist*Math.cos(camPitch);
-  const targetY=firstPerson?ey+Math.sin(camPitch)*lookDist:1.15+camPitch*2.0;
+  const lookDist=firstPerson?24:0;
+  const targetX=firstPerson?ex-Math.sin(camYaw)*lookDist*Math.cos(camPitch):px;
+  const targetZ=firstPerson?ez-Math.cos(camYaw)*lookDist*Math.cos(camPitch):pz;
+  const targetY=firstPerson?ey+Math.sin(camPitch)*lookDist:1.8;
   gl.uniformMatrix4fv(uV,false,look([ex,ey,ez],[targetX,targetY,targetZ]));
   gl.uniform3f(uViewPos,ex,ey,ez);
   gl.uniformMatrix4fv(uP,false,perspective(.95,canvas.width/canvas.height,.05,300));
@@ -389,7 +400,8 @@ function render(){
   }
 
   drawObjectiveBeacon();
-  drawCharacter();
+  // In first person, do not render the pilot mesh through the camera near plane.
+  if(!firstPerson)drawCharacter();
   near=findNear();
   $("interact").classList.toggle("hidden",!near);
   if(near){
@@ -412,7 +424,7 @@ joy?.addEventListener("touchstart",e=>{e.preventDefault();const q=e.changedTouch
 joy?.addEventListener("touchmove",e=>{e.preventDefault();const q=[...e.touches].find(x=>x.identifier===joyId);if(!q)return;const dx=q.clientX-joyCx,dy=q.clientY-joyCy;const lim=34,ix=Math.max(-lim,Math.min(lim,dx)),iy=Math.max(-lim,Math.min(lim,dy));joyAxisX=ix/lim;joyAxisY=iy/lim;const knob=joy.querySelector("i");if(knob)knob.style.transform="translate("+ix+"px,"+iy+"px)"},{passive:false});
 joy?.addEventListener("touchend",e=>{e.preventDefault();joyAxisX=joyAxisY=0;joyId=null;const knob=joy.querySelector("i");if(knob)knob.style.transform="translate(0,0)"},{passive:false});joy?.addEventListener("touchcancel",e=>{e.preventDefault();joyAxisX=joyAxisY=0;joyId=null;const knob=joy.querySelector("i");if(knob)knob.style.transform="translate(0,0)"},{passive:false});
 let lookId=null,lastLX=0,lastLY=0;touchLook?.addEventListener("touchstart",e=>{e.preventDefault();const q=e.changedTouches[0];lookId=q.identifier;lastLX=q.clientX;lastLY=q.clientY},{passive:false});
-touchLook?.addEventListener("touchmove",e=>{e.preventDefault();const q=[...e.touches].find(x=>x.identifier===lookId);if(!q)return;camYawTarget+=(q.clientX-lastLX)*.0048;camPitchTarget=Math.max(-.28,Math.min(.50,camPitchTarget+(q.clientY-lastLY)*.0025));lastLX=q.clientX;lastLY=q.clientY;if(!Number.isFinite(camYawTarget))camYawTarget=camYaw},{passive:false});
+touchLook?.addEventListener("touchmove",e=>{e.preventDefault();const q=[...e.touches].find(x=>x.identifier===lookId);if(!q)return;camYawTarget+=(q.clientX-lastLX)*.0048;camPitchTarget=Math.max(-.62,Math.min(.78,camPitchTarget+(q.clientY-lastLY)*.0032));lastLX=q.clientX;lastLY=q.clientY;if(!Number.isFinite(camYawTarget))camYawTarget=camYaw},{passive:false});
 touchLook?.addEventListener("touchend",e=>{e.preventDefault();lookId=null},{passive:false});
 touchE?.addEventListener("touchstart",e=>{e.preventDefault();interact()},{passive:false});touchE?.addEventListener("click",e=>{e.preventDefault();interact()});
 
@@ -435,7 +447,7 @@ if(window.PointerEvent){
   lookEl?.addEventListener("pointermove",e=>{
     if(e.pointerId!==pLook)return;e.preventDefault();
     camYawTarget+=(e.clientX-pLX)*.0048;
-    camPitchTarget=Math.max(-.28,Math.min(.50,camPitchTarget-(e.clientY-pLY)*.0025));
+    camPitchTarget=Math.max(-.62,Math.min(.78,camPitchTarget-(e.clientY-pLY)*.0032));
     pLX=e.clientX;pLY=e.clientY;
     if(!Number.isFinite(camYaw))camYaw=0;
   },{passive:false});
