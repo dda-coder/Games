@@ -132,6 +132,25 @@ for(let i=0;i<(mobileMode?18:30);i++){const a=i*2.399963,r=78+(i%5)*4,x=Math.cos
 for(let i=0;i<10;i++){const a=i*Math.PI/5,r=61,x=Math.cos(a)*r,z=Math.sin(a)*r;box(x,24,z,22,.45,.35,[.025,.17,.22])}
 for(let i=0;i<7;i++){const x=-42+i*14,z=-62-(i%2)*7;box(x,24,z,7,2,.35,[.025,.12,.18]);box(x,24.6,z,2.8,.6,.25,[.06,.55,.72]);box(x,25.5,z-1.5,1.2,4,.18,[.08,.35,.48])}
 makeCity();
+// Recognisable frontier landscape: forest belt, rock outcrops and a remote landing field.
+for(let i=0;i<72;i++){
+  const a=i*2.399963,r=178+(i%9)*9,x=Math.cos(a)*r,z=Math.sin(a)*r;
+  const trunk=1.8+(i%3)*.55,height=5+(i%5)*1.7,spread=2.8+(i%4)*.75;
+  cylinder(x,height*.48,z,trunk,height*.96,[.30,.20,.12],8);
+  ellipsoid(x,height+spread*.35,z,spread,height*.95,spread,[.13+(i%3)*.025,.29+(i%4)*.035,.16+(i%2)*.025]);
+  if(i%4===0)ellipsoid(x+spread*.45,height+spread*.85,z-spread*.25,spread*.65,spread*.70,spread*.65,[.18,.36,.19]);
+}
+for(let i=0;i<24;i++){
+  const a=i*2.399963,r=135+(i%5)*12,x=Math.cos(a)*r,z=Math.sin(a)*r,s=3+(i%4)*2;
+  ellipsoid(x,s*.35,z,s*1.25,s*.75,s,[.31,.32,.28]);
+}
+// Remote landing pad and a small shuttle silhouette.
+box(-108,.10,72,34,34,.18,[.24,.27,.25]);
+ring(-108,.24,72,13,.22,[.85,.63,.25]);
+for(let i=0;i<4;i++)box(-108+(i%2?1:-1)*11,.32,72+(i<2?-11:11),.45,.45,2,[.88,.65,.27]);
+box(-108,1.35,72,10,4.8,2.2,[.37,.43,.45]);
+box(-108,2.05,72,4,1.9,2.8,[.18,.36,.43]);
+for(let side=-1;side<=1;side+=2){box(-108+side*8,1.1,72,8,2.5,.55,[.28,.34,.36]);box(-108+side*11,1.3,72,.8,1.1,1.2,[.86,.48,.20]);}
 const staticVerts=verts.slice();let nanCount=0,finiteMin=[Infinity,Infinity,Infinity],finiteMax=[-Infinity,-Infinity,-Infinity];for(let i=0;i<staticVerts.length;i+=9){const x=staticVerts[i],y=staticVerts[i+1],z=staticVerts[i+2];if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(z))nanCount++;else{if(x<finiteMin[0])finiteMin[0]=x;if(y<finiteMin[1])finiteMin[1]=y;if(z<finiteMin[2])finiteMin[2]=z;if(x>finiteMax[0])finiteMax[0]=x;if(y>finiteMax[1])finiteMax[1]=y;if(z>finiteMax[2])finiteMax[2]=z}}window.__GALAKTOGON.vertexCount=staticVerts.length/9;window.__GALAKTOGON.staticStats={nanCount,min:finiteMin,max:finiteMax,head:Array.from(staticVerts.slice(0,54))};
 const staticBuf=gl.createBuffer();
 const trafficBuf=gl.createBuffer();
